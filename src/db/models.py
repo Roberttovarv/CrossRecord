@@ -14,6 +14,8 @@ class Users(db.Model):
     name = db.Column(db.String(20), nullable=False)
     last_name = db.Column(db.String(20), nullable=False)
     username = db.Column(db.String(20), nullable=False)
+    weight = db.Column(db.Numeric(3, 2), nullable=True)
+    profile_picture = db.Column(db.String(), nullable=True)
 
     def __repr__(self):
         return f'<User: {self.username}>'
