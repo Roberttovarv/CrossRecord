@@ -82,7 +82,7 @@ def get_users():
     response_body['results'] = results
     return jsonify(response_body), 200
 
-@api.route('users/user/<int:user_id>', methods=['GET'])
+@api.route('/users/user/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     response_body= {}
     user = Users.query.get(user_id)
@@ -94,7 +94,7 @@ def get_user(user_id):
     response_body['results'] = user.serialize()
     return jsonify(response_body), 200
 
-@api.route('users/user/<int:user_id>', methods=['PUT'])
+@api.route('/users/user/<int:user_id>', methods=['PUT'])
 def edit_user(user_id):
     response_body = {}
     user = Users.query.get(user_id)
@@ -107,14 +107,14 @@ def edit_user(user_id):
 
     for field in fields:
         if data[field]:
-            user.field = data[field]
+            setattr(user, field, data[field])  
 
     db.session.commit()
     response_body['message'] = "Data updated"
     response_body['results'] = user.serialize()
     return jsonify(response_body), 200
 
-@api.route('users/user/<int:user_id>', methods=['DELETE'])
+@api.route('/users/user/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     user = Users.query.get(user_id)
     response_body = {}

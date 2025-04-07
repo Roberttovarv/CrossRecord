@@ -81,10 +81,12 @@ class WeightRecord(db.Model):
     user = db.relationship('Users', backref= db.backref('weight_records', lazy=True))
 
     def serialize(self):
+        user_weight = float(self.user.weight)  
         return {
             'id': self.id,
             'weight': self.weight,
-            'date': self.date.strftime('%d/%m/%Y')
+            'date': self.date.strftime('%d/%m/%Y'),
+            'user_weight': user_weight
         }
 
 class UserExercise(db.Model):
@@ -101,3 +103,48 @@ class UserExercise(db.Model):
             'user_id': self.user_id,
             'exercise_id': self.weighted_exercise_id
         }
+
+class CalisthenicExercises(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    exercise_name = db.Column(db.String(50), nullable=False)
+    variations = db.relationship('CalisthenicExerciseVariation', backref='exercise', lazy=True)
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'exercise_name': self.exercise_name,
+            'variations': [variation.serialize() for variation in self.variations]
+        }
+
+class CalisthenicExerciseVariations(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    variation_name = db.Column(db.String(50), nullable=False)
+    exercise_id = db.Column(db.Integer(), db.ForeignKey('calisthenic_exercise.id'), nullable=False)
+
+    repetitions_records = db.relationship('CalisthenicRecord', backref='variation')
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'variation_name': self.variation_name,
+            'exercise_id': self.exercise_id
+        }
+
+class CalisthenicRecord(db.Model):
+    id = db.Model(db.Integer(), primary_key=True)
+    repetitions = db.Column(db.Numeric(3, 3), nullable=False)
+    date = db.Model(db.Date(), nullable=False)
+
+    user_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
+    variation_id = db.Column(db.Integer(), db.ForeignKey('weighted_exercise_variation.id'), nullable=False)
+
+    user = db.relationship('Users', backref= db.backref('repetitions_records', lazy=True))
+
+    def serialize(self):
+        user_weight = float(self.user.weight)  
+        return {
+            'id': self.id,
+            'repetitions': self.repetitions,
+            'date': self.date.strftime('%d/%m/%Y'),
+            'user_weight': user_weight
+        }    
