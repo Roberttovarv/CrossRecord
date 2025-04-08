@@ -30,7 +30,7 @@ class CalisthenicExerciseVariations(db.Model):
 
 class CalisthenicRecord(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    repetitions = db.Column(db.Int(), nullable=False)
+    repetitions = db.Column(db.Integer(), nullable=False)
     date = db.Column(db.Date(), nullable=False)
 
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)

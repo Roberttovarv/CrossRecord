@@ -1,5 +1,2 @@
-from flask import Blueprint, jsonify
-
-api = Blueprint('login', __name__)
-
-
+from .auth_routes import auth_api
+from .user_routes import user_api
