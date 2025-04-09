@@ -18,5 +18,7 @@ class UserExercise(db.Model):
         return {
             'id': self.id,
             'user_id': self.user_id,
-            'exercise_id': self.weighted_exercise_id
+            'weighted_exercise_id': self.weighted_exercise_id,
+            'calisthenic_exercise_id': self.calisthenic_exercise_id,
+            'cardio_exercise_id': self.cardio_exercise_id
         }

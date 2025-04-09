@@ -38,12 +38,12 @@ class WeightRecord(db.Model):
     variation_id = db.Column(db.Integer(), db.ForeignKey('weighted_exercise_variation.id'), nullable=False)
 
     user = db.relationship('Users', backref=db.backref('weight_records', lazy=True))
+    bodyweight = db.Column(db.Numeric(5, 2), nullable=True)
 
     def serialize(self):
-        user_weight = float(self.user.weight)  
         return {
             'id': self.id,
             'weight': self.lifted_weight,
             'date': self.date.strftime('%d/%m/%Y'),
-            'user_weight': user_weight
+            'user_weight': float(self.bodyweight)
         }

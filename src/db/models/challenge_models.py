@@ -15,7 +15,15 @@ class Challenge(db.Model):
 
     exercise = db.relationship('UserExercise', backref='challenges')
 
-    new_record = db.Column(db.Integer(), nullable=False)
+    record_to_complete = db.Column(db.Integer(), nullable=False)
     message = db.Column(db.String(50), nullable=True)
 
-    
+    def serialize(self):
+        return {
+            'id': self.id,
+            'challenger_id': self.challenger_id,
+            'challenged_id': self.challenged_id,
+            'exercise_id': self.exercise_id,
+            'record_to_complete': self.record_to_complete,
+            'message': self.message
+        }

@@ -38,6 +38,7 @@ class CardioRecord(db.Model):
     variation_id = db.Column(db.Integer(), db.ForeignKey('cardio_exercise_variation.id'), nullable=False)
 
     user = db.relationship('Users', backref= db.backref('cardio_records', lazy=True))
+    bodyweight = db.Column(db.Numeric(5, 2), nullable=True)
 
     def serialize(self):
         user_weight = float(self.user.weight)  
@@ -46,5 +47,5 @@ class CardioRecord(db.Model):
             'time': self.time,
             'calorioes': float(self.calories),
             'date': self.date.strftime('%d/%m/%Y'),
-            'user_weight': user_weight
+            'user_weight': float(self.bodyweight)
         }    
