@@ -25,7 +25,7 @@ def add_calisthenic_variation(exercise_id):
 
     data = request.json
     if not data:
-        jsonify({'error': 'Data must not be empty'})
+        return jsonify({'error': 'Data must not be empty'})
 
     if ('variation_name' in data and
         not data['variation_name'].strip() or
