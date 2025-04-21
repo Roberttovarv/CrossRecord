@@ -43,7 +43,6 @@ def add_calisthenic_variation(exercise_id):
            for variation in exercise.variations):
         return jsonify({'error': 'Variation with this name already exists'})
        
-
     new_variation = CalisthenicExerciseVariations(
         variation_name = data["variation_name"].lower().strip(),
         exercise_id=exercise_id

@@ -43,7 +43,6 @@ def add_weighted_variation(exercise_id):
            for variation in exercise.variations):
         return jsonify({'error': 'Variation with this name already exists'})
     
-
     new_variation = WeightedExerciseVariations(
         variation_name=data["variation_name"],
         exercise_id=exercise_id 
