@@ -1,7 +1,10 @@
 from flask import Blueprint, request, jsonify
-from models import db, Users
+from src.db.models.user_models import Users
 from flask_jwt_extended import jwt_required
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 user_api = Blueprint('user_api', __name__)
 

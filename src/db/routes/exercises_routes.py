@@ -1,7 +1,12 @@
 from flask import Blueprint, request, jsonify
-from models import db, CalisthenicExercises, WeightedExercises, CardioExercises
+from src.db.models.calisthenic_models import CalisthenicExercises
+from src.db.models.weighted_models import WeightedExercises
+from src.db.models.cardio_models import CardioExercises
 from flask_jwt_extended import create_access_token
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 exercises_api = Blueprint('exercises_api', __name__)
 

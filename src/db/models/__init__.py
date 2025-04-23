@@ -1,7 +1,7 @@
-from .user_models import Users
-from .weighted_models import WeightedExercises, WeightedExerciseVariations, WeightRecord
-from .calisthenic_models import CalisthenicExercises, CalisthenicExerciseVariations, CalisthenicRecord
-from .cardio_models import CardioExercises, CardioExerciseVariations, CardioRecord
-from .user_exercise_models import UserExercise
-from .user_follows_models import Follow
-from .challenge_models import Challenge
+from . import user_models
+from . import calisthenic_models
+from . import cardio_models
+from . import weighted_models
+from . import challenge_models
+from . import user_exercise_models
+from . import user_follows_models

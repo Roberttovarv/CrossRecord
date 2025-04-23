@@ -1,6 +1,9 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
-from models import db, WeightedExercises, WeightedExerciseVariations
+from src.db.models.weighted_models import WeightedExercises, WeightedExerciseVariations
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 weighted_variations_api = Blueprint('weighted_variations_api', __name__)
 

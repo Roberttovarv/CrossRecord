@@ -6,8 +6,13 @@ name = "pypi"
 [packages]
 flask-sqlalchemy = "*"
 graphviz = "*"
+flask-jwt-extended = "*"
+utils = "*"
 
 [dev-packages]
 
 [requires]
 python_version = "3.12"
+
+[scripts]
+start = "python -m src.app"
