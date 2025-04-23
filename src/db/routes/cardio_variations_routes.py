@@ -108,7 +108,7 @@ def edit_cardio_variation(exercise_id, variation_id):
     }), 200    
 
 @cardio_variations_api.route('/exercises/<id:exercise_id>/variations/<int:variation_id>',
-                             methods=["DELETE"]):
+                             methods=["DELETE"])
 def delete_cardio_variation(exercise_id, variation_id):
 
     variation_to_delete = CardioExerciseVariations.query.filter_by(
