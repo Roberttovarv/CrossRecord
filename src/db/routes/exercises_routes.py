@@ -1,12 +1,11 @@
 from flask import Blueprint, request, jsonify
 from src.db.models.calisthenic_models import CalisthenicExercises
-from src.db.models.weighted_models import WeightedExercises
-from src.db.models.cardio_models import CardioExercises
+from src.db.models.weighted_models import WeightedExercise
+from src.db.models.cardio_models import CardioExercise
 from flask_jwt_extended import create_access_token
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
+from ...extensions import db
 
-db = SQLAlchemy()
 
 exercises_api = Blueprint('exercises_api', __name__)
 
@@ -15,9 +14,9 @@ CORS(exercises_api)
 @exercises_api.route('/exercises', methods=["GET"])
 def get_all_exercises():
 
-    weighted_exercises = WeightedExercises.query.all()
+    weighted_exercises = WeightedExercise.query.all()
     calisthenic_exercises = CalisthenicExercises.query.all()
-    cardio_exercises = CardioExercises.query.all()
+    cardio_exercises = CardioExercise.query.all()
 
     exercises = {
         'weighted': [exercise.serialize() for exercise in weighted_exercises],
@@ -32,7 +31,7 @@ def add_weighted_exercise():
 
     data = request.json
 
-    new_exercise = WeightedExercises(exercise_name=data["exercise_name"])
+    new_exercise = WeightedExercise(exercise_name=data["exercise_name"])
 
     db.session.add(new_exercise)
     db.session.commit()
@@ -54,7 +53,7 @@ def add_cardio_exercise():
 
     data = request.json
 
-    new_exercise = CardioExercises(exercise_name=data["exercise_name"])
+    new_exercise = CardioExercise(exercise_name=data["exercise_name"])
 
     db.session.add(new_exercise)
     db.session.commit()

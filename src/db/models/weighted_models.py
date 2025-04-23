@@ -1,12 +1,11 @@
-from flask_sqlalchemy import SQLAlchemy
+from ...extensions import db
 
-db = SQLAlchemy()
+class WeightedExercise(db.Model):
+    __tablename__ = 'weighted_exercises'
 
-
-class WeightedExercises(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     exercise_name = db.Column(db.String(50), nullable=False)
-    variations = db.relationship('WeightedExerciseVariation', backref='weight_exercise', lazy=True)
+    variations = db.relationship('WeightedExerciseVariations', backref='weight_exercise', lazy=True)
 
     def serialize(self):
         return {
@@ -35,7 +34,7 @@ class WeightRecord(db.Model):
     date = db.Column(db.Date(), nullable=False)
 
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
-    variation_id = db.Column(db.Integer(), db.ForeignKey('weighted_exercise_variation.id'), nullable=False)
+    variation_id = db.Column(db.Integer(), db.ForeignKey('weighted_exercise_variations.id'), nullable=False)
 
     user = db.relationship('Users', backref=db.backref('weight_records', lazy=True))
     bodyweight = db.Column(db.Numeric(5, 2), nullable=True)

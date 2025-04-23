@@ -1,9 +1,14 @@
 from flask import Flask
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
+
 import os
+from .db.routes.auth_routes import auth_api
+from .db.routes.user_routes import user_api
+from src.extensions import db
 
 from .db.routes import cardio_variations_routes
-db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
@@ -18,6 +23,8 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
+    migrate = Migrate(app, db)
+
 
 
     from .db.models import user_models, calisthenic_models, cardio_models, weighted_models, challenge_models, user_exercise_models, user_follows_models
@@ -29,6 +36,9 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+
+    app.register_blueprint(auth_api)
+    app.register_blueprint(user_api)
     
     return app
 

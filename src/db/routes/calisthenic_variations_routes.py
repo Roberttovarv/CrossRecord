@@ -1,9 +1,8 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 from src.db.models.calisthenic_models import CalisthenicExercises, CalisthenicExerciseVariations
-from flask_sqlalchemy import SQLAlchemy
+from ...extensions import db
 
-db = SQLAlchemy()
 
 calisthenic_variations_api = Blueprint('calisthenic_variations_api', __name__)
 

@@ -1,11 +1,11 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from ...extensions import db
 
 class CalisthenicExercises(db.Model):
+    __tablename__ = 'calisthenic_exercises'
+    
     id = db.Column(db.Integer(), primary_key=True)
     exercise_name = db.Column(db.String(50), nullable=False)
-    variations = db.relationship('CalisthenicExerciseVariation', backref='calisthenic_exercise', lazy=True)
+    variations = db.relationship('CalisthenicExerciseVariations', backref='calisthenic_exercise', lazy=True)
 
     def serialize(self):
         return {
@@ -34,7 +34,7 @@ class CalisthenicRecord(db.Model):
     date = db.Column(db.Date(), nullable=False)
 
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
-    variation_id = db.Column(db.Integer(), db.ForeignKey('calisthenic_exercise_variation.id'), nullable=False)
+    variation_id = db.Column(db.Integer(), db.ForeignKey('calisthenic_exercise_variations.id'), nullable=False)
 
     user = db.relationship('Users', backref=db.backref('calisthenic_records', lazy=True))
     bodyweight = db.Column(db.Numeric(5, 2), nullable=True)

@@ -1,6 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
+from ...extensions import db
 
-db = SQLAlchemy()
 
 class UserExercise(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -9,10 +8,10 @@ class UserExercise(db.Model):
     calisthenic_exercise_id = db.Column(db.Integer(), db.ForeignKey('calisthenic_exercises.id'), nullable=False)
     cardio_exercise_id = db.Column(db.Integer(), db.ForeignKey('cardio_exercises.id'), nullable=False)
 
-    user = db.relationship('Users', backref=db.backref('user_exercises', lazy=True))
-    weight_exercise = db.relationship('WeightedExercise', backref=db.backref('user_exercises', lazy=True))
-    calisthenic_exercise = db.relationship('CalisthenicExercise', backref=db.backref('user_exercises', lazy=True))
-    cardio_exercise = db.relationship('CardioExercise', backref=db.backref('user_exercises', lazy=True))
+    user = db.relationship('Users', backref=db.backref('user_exercise', lazy=True))
+    weight_exercise = db.relationship('WeightedExercise', backref=db.backref('user_exercise', lazy=True))
+    calisthenic_exercise = db.relationship('CalisthenicExercises', backref=db.backref('user_exercise', lazy=True))
+    cardio_exercise = db.relationship('CardioExercise', backref=db.backref('user_exercise', lazy=True))
 
     def serialize(self):
         return {

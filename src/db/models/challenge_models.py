@@ -1,6 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from ...extensions import db
 
 class Challenge(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -11,7 +9,7 @@ class Challenge(db.Model):
     challenger = db.relationship('Users', foreign_keys=[challenger_id], backref='challenger_challenges')
     challenged = db.relationship('Users', foreign_keys=[challenged_id], backref='challenged_challenges')
 
-    exercise_id = db.Column(db.Integer(), db.ForeignKey('user.exercises.id'), nullable=False)
+    exercise_id = db.Column(db.Integer(), db.ForeignKey('user_exercise.id'), nullable=False)
 
     exercise = db.relationship('UserExercise', backref='challenges')
 
