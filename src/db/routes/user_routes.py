@@ -18,7 +18,7 @@ def get_users():
     response_body['results'] = results
     return jsonify(response_body), 200
 
-@user_api.route('/users/user/<int:user_id>', methods=['GET'])
+@user_api.route('/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     response_body= {}
     user = Users.query.get(user_id)
@@ -30,7 +30,7 @@ def get_user(user_id):
     response_body['results'] = user.serialize()
     return jsonify(response_body), 200
 
-@user_api.route('/users/user/<int:user_id>', methods=['PUT'])
+@user_api.route('/users/<int:user_id>', methods=['PUT'])
 def edit_user(user_id):
     response_body = {}
     user = Users.query.get(user_id)
@@ -50,7 +50,7 @@ def edit_user(user_id):
     response_body['results'] = user.serialize()
     return jsonify(response_body), 200
 
-@user_api.route('/users/user/<int:user_id>', methods=['DELETE'])
+@user_api.route('/users/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     user = Users.query.get(user_id)
     response_body = {}
@@ -62,3 +62,4 @@ def delete_user(user_id):
     db.session.commit()
     response_body['message'] = f"The user {user.name} has been deleted"
     return jsonify(response_body), 200
+
