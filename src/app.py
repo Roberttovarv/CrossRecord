@@ -9,6 +9,7 @@ from .db.routes.calisthenic_variations_routes import calisthenic_variations_api
 from .db.routes.weighted_variations_routes import weighted_variations_api
 from .db.routes.cardio_variations_routes import cardio_variations_api
 from .db.routes.exercises_routes import exercises_api
+from .db.routes.follow_routes import follow_api
 from src.extensions import db
 
 from .db.routes import cardio_variations_routes
@@ -34,6 +35,7 @@ def create_app():
     app.register_blueprint(weighted_variations_api)
     app.register_blueprint(cardio_variations_api)
     app.register_blueprint(exercises_api)
+    app.register_blueprint(follow_api)
 
     from .db.models import user_models, calisthenic_models, cardio_models, weighted_models, challenge_models, user_exercise_models, user_follows_models
     from .db.routes import auth_routes, calisthenic_variations_routes, exercises_routes, user_routes, weighted_variations_routes
