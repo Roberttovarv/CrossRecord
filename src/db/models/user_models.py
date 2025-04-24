@@ -24,7 +24,9 @@ class Users(db.Model):
             'last_name': self.last_name,
             'username': self.username,
             'weight': self.weight,
-            'is_premium': self.is_premium
+            'is_premium': self.is_premium,
+            'following': [f.followed.username for f in self.following],
+            'follower': [f.follower.username for f in self.followers]
         }
 
     @validates('password')

@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
 from src.db.models.user_models import Users
-from flask_jwt_extended import jwt_required
 from flask_cors import CORS
 from ...extensions import db
+from flask_jwt_extended import jwt_required
 
 
 user_api = Blueprint('user_api', __name__)
