@@ -7,10 +7,10 @@ name = "pypi"
 graphviz = "*"
 utils = "*"
 cors = "*"
-flask-jwt-extended = "*"
 flask-cors = "*"
 flask-sqlalchemy = "*"
 flask-migrate = "*"
+flask-jwt-extended = "*"
 
 [dev-packages]
 

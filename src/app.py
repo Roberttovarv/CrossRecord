@@ -11,8 +11,9 @@ from .db.routes.cardio_variations_routes import cardio_variations_api
 from .db.routes.exercises_routes import exercises_api
 from .db.routes.follow_routes import follow_api
 from src.extensions import db
+from flask_jwt_extended import JWTManager
 
-from .db.routes import cardio_variations_routes
+jwt = JWTManager()
 
 def create_app():
     app = Flask(__name__)
@@ -25,6 +26,8 @@ def create_app():
 
     app.config["SQLALCHEMY_DATABASE_URI"] = f'sqlite:///{db_path}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['JWT_SECRET_KEY'] = 'tu_clave_secreta_super_segura'
+
 
     db.init_app(app)
     migrate = Migrate(app, db)
@@ -39,7 +42,8 @@ def create_app():
 
     from .db.models import user_models, calisthenic_models, cardio_models, weighted_models, challenge_models, user_exercise_models, user_follows_models
     from .db.routes import auth_routes, calisthenic_variations_routes, exercises_routes, user_routes, weighted_variations_routes
-        
+
+    jwt.init_app(app)       
     @app.route('/')
     def sitemap():
         return '<h1>Hola</h1>'

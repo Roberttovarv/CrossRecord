@@ -5,7 +5,7 @@ class Follow(db.Model):
     following_id = db.Column(db.Integer(), db.ForeignKey('users.id'), primary_key=True)
 
     follower = db.relationship('Users', foreign_keys=[user_id], backref='following')
-    followed = db.relationship('Users', foreign_keys=[following_id], backref='follower')
+    followed = db.relationship('Users', foreign_keys=[following_id], backref='followers')
 
     def serialize(self):
         return {

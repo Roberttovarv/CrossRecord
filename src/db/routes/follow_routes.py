@@ -24,7 +24,7 @@ def get_user_followers(user_id):
 
     return jsonify(followers), 200
 
-@follow_api.route('users/<int:user_id>/following', methods=["POST"])
+@follow_api.route('/users/<int:user_id>/following', methods=["POST"])
 def add_new_follow(user_id):
 
     data = request.json
@@ -42,6 +42,8 @@ def add_new_follow(user_id):
     existing_follow = Follow.query.filter_by(user_id=user_id, following_id=user_to_follow).first()
     if existing_follow:
         return jsonify({'message':'Already following'}), 400
+    if user_id == user_to_follow:
+        return jsonify("'error': 'User ID is same than User to Follow'")
     
     follow = Follow(
         user_id=user_id,
@@ -53,7 +55,7 @@ def add_new_follow(user_id):
 
     return jsonify(follow.serialize())
 
-@follow_api.route('/user/<int:user_id>/following/<int:following_id>', methods=["DELETE"])
+@follow_api.route('/users/<int:user_id>/following/<int:following_id>', methods=["DELETE"])
 def remove_follow(user_id, following_id):
     
     follow = Follow.query.filter_by(user_id=user_id, following_id=following_id).first()
@@ -62,14 +64,14 @@ def remove_follow(user_id, following_id):
         db.session.delete(follow),
         db.session.commit()
 
-        return jsonify({'message':'Follow deleted'})
+        return jsonify({'message':'Follow deleted'}), 200
 
-    return jsonify({'Error':'Follow not found'})
+    return jsonify({'Error':'Follow not found'}), 404
 
-@follow_api.route('/users/<int:user_id>/followers/<int:follower_id>')
+@follow_api.route('/users/<int:user_id>/followers/<int:follower_id>', methods=["DELETE"])
 def remove_follower(user_id, follower_id):
 
-    follow = Follow.query.filter_by(user_id=follower_id, following_id=user_id)
+    follow = Follow.query.filter_by(user_id=follower_id, following_id=user_id).first()
 
     if follow:
         db.session.delete(follow)
@@ -77,4 +79,4 @@ def remove_follower(user_id, follower_id):
 
         return jsonify({'message':'Follower deleted'})
     
-    return jsonify({'error':'Follower not found'}) 
+    return jsonify({'error':'Follower not found'}), 404 

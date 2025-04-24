@@ -69,7 +69,7 @@ def get_single_cardio_variation(exercise_id, variation_id):
     return jsonify(variation_to_get.serialize()), 200
 
 @cardio_variations_api.route('/exercises/cardio/<int:exercise_id>/variations/<int:variation_id>',
-                             methos=["PUT"])
+                             methods=["PUT"])
 def edit_cardio_variation(exercise_id, variation_id):
 
     variation_to_edit = CardioExerciseVariations.query.filter_by(
@@ -106,7 +106,7 @@ def edit_cardio_variation(exercise_id, variation_id):
         'variation': variation_to_edit.serialize()
     }), 200    
 
-@cardio_variations_api.route('/exercises/<id:exercise_id>/variations/<int:variation_id>',
+@cardio_variations_api.route('/exercises/<int:exercise_id>/variations/<int:variation_id>',
                              methods=["DELETE"])
 def delete_cardio_variation(exercise_id, variation_id):
 
