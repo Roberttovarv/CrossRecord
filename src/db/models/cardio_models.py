@@ -31,7 +31,7 @@ class CardioExerciseVariations(db.Model):
 class CardioRecord(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     calories = db.Column(db.Numeric(3, 1), nullable=False)
-    time = db.Column(db.String(), nullable=False)
+    time = db.Column(db.Integer(), nullable=False)
     date = db.Column(db.Date(), nullable=False)
 
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
