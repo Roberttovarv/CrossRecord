@@ -32,6 +32,8 @@ class CalisthenicRecord(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     repetitions = db.Column(db.Integer(), nullable=False)
     date = db.Column(db.Date(), nullable=False)
+    is_a_challenge = db.Column(db.Boolean(), nullalble=False)
+
 
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
     variation_id = db.Column(db.Integer(), db.ForeignKey('calisthenic_exercise_variations.id'), nullable=False)
