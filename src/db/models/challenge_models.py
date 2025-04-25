@@ -8,7 +8,7 @@ class CardioChallenge(db.Model):
     record_to_complete = db.Column(db.Integer(), nullable=False)
     message = db.Column(db.String(50), nullable=True)
     date = db.Column(db.Date, nullable=False)
-    is_completed = db.Coumn(db.Boolean(), nullable=False)
+    is_completed = db.Column(db.Boolean(), nullable=False)
 
     challenger = db.relationship('Users', foreign_keys=[challenger_id], backref='sent_challenges')
     challenged = db.relationship('Users', foreign_keys=[challenged_id], backref='received_challenges')
@@ -55,7 +55,7 @@ class CalisthenicChallenge(db.Model):
 class WeightedChallenge(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     variation_id = db.Column(db.Integer(), db.ForeignKey('weighted_exercise_variations.id'), nullable=False)
-    challenger_id = db.Coumn(db.Integer(), db.ForeignKey('users.id'), nullable=False)
+    challenger_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
     challenged_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
     record_to_complete = db.Column(db.Integer(), nullable=False)
     message = db.Column(db.String(50))

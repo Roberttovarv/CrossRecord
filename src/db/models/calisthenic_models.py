@@ -5,7 +5,7 @@ class CalisthenicExercises(db.Model):
     
     id = db.Column(db.Integer(), primary_key=True)
     exercise_name = db.Column(db.String(50), nullable=False)
-    variations = db.relationship('CalisthenicExerciseVariations', backref='calisthenic_exercise', lazy=True)
+    variations = db.relationship('CalisthenicExerciseVariations', backref='calisthenic_exercise', lazy=True, cascade="all, delete-orphan")
 
     def serialize(self):
         return {
@@ -19,7 +19,7 @@ class CalisthenicExerciseVariations(db.Model):
     variation_name = db.Column(db.String(50), nullable=False)
     exercise_id = db.Column(db.Integer(), db.ForeignKey('calisthenic_exercises.id'), nullable=False)
 
-    calisthenic_records = db.relationship('CalisthenicRecord', backref='variation')
+    calisthenic_records = db.relationship('CalisthenicRecord', backref='variation', cascade="all, delete-orphan")
 
     def serialize(self):
         return {
@@ -32,7 +32,7 @@ class CalisthenicRecord(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     repetitions = db.Column(db.Integer(), nullable=False)
     date = db.Column(db.Date(), nullable=False)
-    is_a_challenge = db.Column(db.Boolean(), nullalble=False)
+    is_a_challenge = db.Column(db.Boolean(), nullable=False)
 
 
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)

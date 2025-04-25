@@ -5,7 +5,7 @@ class CardioExercise(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
     exercise_name = db.Column(db.String(50), nullable=False)
-    variations = db.relationship('CardioExerciseVariations', backref='cardio_exercise', lazy=True)
+    variations = db.relationship('CardioExerciseVariations', backref='cardio_exercise', lazy=True, cascade="all, delete-orphan")
 
     def serialize(self):
         return {
@@ -19,7 +19,7 @@ class CardioExerciseVariations(db.Model):
     variation_name = db.Column(db.String(50), nullable=False)
     exercise_id = db.Column(db.Integer(), db.ForeignKey('cardio_exercises.id'), nullable=False)
 
-    cardio_records = db.relationship('CardioRecord', backref='variation')
+    cardio_records = db.relationship('CardioRecord', backref='variation', cascade="all, delete-orphan")
 
     def serialize(self):
         return {

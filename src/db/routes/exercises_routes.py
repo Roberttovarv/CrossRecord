@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
-from src.db.models.calisthenic_models import CalisthenicExercises
-from src.db.models.weighted_models import WeightedExercise
-from src.db.models.cardio_models import CardioExercise
+from src.db.models.calisthenic_models import CalisthenicExercises, CalisthenicExerciseVariations 
+from src.db.models.weighted_models import WeightedExercise, WeightedExerciseVariations 
+from src.db.models.cardio_models import CardioExercise, CardioExerciseVariations 
 from flask_jwt_extended import create_access_token
 from flask_cors import CORS
 from ...extensions import db
@@ -36,6 +36,15 @@ def add_weighted_exercise():
     db.session.add(new_exercise)
     db.session.commit()
     return jsonify(new_exercise.serialize()), 201
+
+@exercises_api.route('/exercises/weighted/<int:exercise_id>', methods=["DELETE"])
+def delete_weighted_exercise(exercise_id):
+    exercise_to_delete = WeightedExercise.query.get(exercise_id)
+
+    db.session.delete(exercise_to_delete)
+    db.session.commit()
+
+    return jsonify('message: exercise deleted successfully')
 
 @exercises_api.route('/exercises/calisthenic', methods=["POST"])
 def add_calisthenic_exercise():
