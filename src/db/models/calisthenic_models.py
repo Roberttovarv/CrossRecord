@@ -39,13 +39,17 @@ class CalisthenicRecord(db.Model):
     variation_id = db.Column(db.Integer(), db.ForeignKey('calisthenic_exercise_variations.id'), nullable=False)
 
     user = db.relationship('Users', backref=db.backref('calisthenic_records', lazy=True))
+    variation = db.relationship('CalisthenicExerciseVariations', backref='calisthenic_records')
+
     bodyweight = db.Column(db.Numeric(5, 2), nullable=True)
 
     def serialize(self):
-        user_weight = float(self.user.weight)  
+        user_weight = float(self.user.weight) 
         return {
             'id': self.id,
-            'repetitions': self.repetitions,
+            'lifted_weight': float(self.lifted_weight),
             'date': self.date.strftime('%d/%m/%Y'),
-            'user_weight': float(self.bodyweight)
-        }    
+            'bodyweight': float(user_weight),
+            'exercise': self.variation.variation_name,
+            'is_a_challenge': self.is_a_challenge
+        }  

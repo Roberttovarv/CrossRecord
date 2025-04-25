@@ -33,20 +33,24 @@ class CardioRecord(db.Model):
     calories = db.Column(db.Numeric(3, 1), nullable=False)
     time = db.Column(db.Integer(), nullable=False)
     date = db.Column(db.Date(), nullable=False)
-    is_a_challenge = db.Column(db.Boolean(), nullalble=False)
+    is_a_challenge = db.Column(db.Boolean(), nullable=False)
 
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
     variation_id = db.Column(db.Integer(), db.ForeignKey('cardio_exercise_variations.id'), nullable=False)
 
     user = db.relationship('Users', backref= db.backref('cardio_records', lazy=True))
+    variation = db.relationship('CardioExerciseVariations', backref='cardio_records')
+
     bodyweight = db.Column(db.Numeric(5, 2), nullable=True)
 
     def serialize(self):
-        user_weight = float(self.user.weight)  
+        user_weight = float(self.user.weight) 
         return {
             'id': self.id,
+            'calories': float(self.lifted_weight),
             'time': self.time,
-            'calorioes': float(self.calories),
             'date': self.date.strftime('%d/%m/%Y'),
-            'user_weight': float(self.bodyweight)
-        }    
+            'bodyweight': float(user_weight),
+            'exercise': self.variation.variation_name,
+            'is_a_challenge': self.is_a_challenge
+        }  
