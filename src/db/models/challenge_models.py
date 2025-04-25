@@ -10,8 +10,8 @@ class CardioChallenge(db.Model):
     date = db.Column(db.Date, nullable=False)
     is_completed = db.Column(db.Boolean(), nullable=False)
 
-    challenger = db.relationship('Users', foreign_keys=[challenger_id], backref='sent_challenges')
-    challenged = db.relationship('Users', foreign_keys=[challenged_id], backref='received_challenges')
+    challenger = db.relationship('Users', foreign_keys=[challenger_id], backref='sent_cardio_challenges')
+    challenged = db.relationship('Users', foreign_keys=[challenged_id], backref='received_cardio_challenges')
     cardio_variation = db.relationship('CardioExerciseVariations')
     
     def serialize(self):
@@ -36,8 +36,8 @@ class CalisthenicChallenge(db.Model):
     date = db.Column(db.Date, nullable=False)
     is_completed = db.Column(db.Boolean(), nullable=False)
 
-    challenger = db.relationship('Users', foreign_keys=[challenger_id], backref='sent_challenges')
-    challenged = db.relationship('Users', foreign_keys=[challenged_id], backref='receivde_challenges')
+    challenger = db.relationship('Users', foreign_keys=[challenger_id], backref='sent_calisthenic_challenges')
+    challenged = db.relationship('Users', foreign_keys=[challenged_id], backref='receivde_calisthenic_challenges')
     calisthenic_variation = db.relationship('CalisthenicExerciseVariations')
 
     def serialize(self):
@@ -62,8 +62,8 @@ class WeightedChallenge(db.Model):
     date = db.Column(db.Date, nullable=False)
     is_completed = db.Column(db.Boolean(), nullable=False)
 
-    challenger = db.relationship('Users', foreign_keys=[challenger_id], backref='sent_challenges')
-    challenged = db.relationship('Users', foreign_keys=[challenged_id], backref='receivde_challenges')
+    challenger = db.relationship('Users', foreign_keys=[challenger_id], backref='sent_weighted_challenges')
+    challenged = db.relationship('Users', foreign_keys=[challenged_id], backref='receivde_weighted_challenges')
     weighted_variation = db.relationship('WeightedExerciseVariations')
 
     def serialize(self):

@@ -26,7 +26,13 @@ class Users(db.Model):
             'weight': self.weight,
             'is_premium': self.is_premium,
             'following': [f.followed.username for f in self.following],
-            'followers': [f.follower.username for f in self.followers]
+            'followers': [f.follower.username for f in self.followers],
+            'sent_challenges': [*[c.serialize() for c in self.sent_cardio_challenges],
+                                *[c.serialize() for c in self.sent_calisthenic_challenges],
+                                *[c.serialize() for c in self.sent_weighted_challenges]],
+            'received_challenges': [*[c.serialize() for c in self.received_cardio_challenges],
+                                *[c.serialize() for c in self.received_calisthenic_challenges],
+                                *[c.serialize() for c in self.received_weighted_challenges]]
         }
 
     @validates('password')

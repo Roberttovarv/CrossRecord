@@ -19,7 +19,7 @@ class WeightedExerciseVariations(db.Model):
     variation_name = db.Column(db.String(50), nullable=False)
     exercise_id = db.Column(db.Integer(), db.ForeignKey('weighted_exercises.id'), nullable=False)
 
-    weight_records = db.relationship('WeightRecord', backref='variation', cascade="all, delete-orphan")
+    weight_records = db.relationship('WeightRecord', backref='weighted_variation', cascade="all, delete-orphan")
 
     def serialize(self):
         return {
@@ -39,7 +39,7 @@ class WeightRecord(db.Model):
     variation_id = db.Column(db.Integer(), db.ForeignKey('weighted_exercise_variations.id'), nullable=False)
 
     user = db.relationship('Users', backref=db.backref('weight_records', lazy=True))
-    variation = db.relationship('WeightedExerciseVariations', backref='weight_records')
+    variation = db.relationship('WeightedExerciseVariations', backref='weight_variation_records')
 
     bodyweight = db.Column(db.Numeric(5, 2), nullable=True)
 
