@@ -32,7 +32,11 @@ class Users(db.Model):
                                 *[c.serialize() for c in self.sent_weighted_challenges]],
             'received_challenges': [*[c.serialize() for c in self.received_cardio_challenges],
                                 *[c.serialize() for c in self.received_calisthenic_challenges],
-                                *[c.serialize() for c in self.received_weighted_challenges]]
+                                *[c.serialize() for c in self.received_weighted_challenges]],
+            'weighted_records': [record.serialize() for record in self.weight_records],
+            'cardio_records': [record.serialize() for record in self.cardio_records],
+            'calisthenic_records': [record.serialize() for record in self.calisthenic_records]
+            
         }
 
     @validates('password')

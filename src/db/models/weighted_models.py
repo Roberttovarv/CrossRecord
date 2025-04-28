@@ -25,7 +25,8 @@ class WeightedExerciseVariations(db.Model):
         return {
             'id': self.id,
             'variation_name': self.variation_name,
-            'exercise_id': self.exercise_id
+            'exercise_id': self.exercise_id,
+            'weight_records': [record.serialize() for record in self.weight_records] 
         }
 
 class WeightRecord(db.Model):
@@ -51,5 +52,6 @@ class WeightRecord(db.Model):
             'date': self.date.strftime('%d/%m/%Y'),
             'bodyweight': float(user_weight),
             'exercise': self.variation.variation_name,
-            'is_a_challenge': self.is_a_challenge
+            'is_a_challenge': self.is_a_challenge,
+            'user': self.user.id
         }
