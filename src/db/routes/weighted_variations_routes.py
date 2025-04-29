@@ -29,7 +29,7 @@ def add_weighted_variation(exercise_id):
     validate_length(data.get('variation_name'))
     
     exercise = WeightedExercise.query.get(exercise_id)
-    validate_existence(exercise)
+    validate_existence(exercise, "exercise")
     validate_variation_not_repeated(exercise, data.get('variation_name'))
     
     new_variation = WeightedExerciseVariations(
@@ -50,7 +50,7 @@ def get_single_weighted_variation(exercise_id, variation_id):
         id=variation_id,
         exercise_id=exercise_id
     ).first() 
-    validate_existence(variation_to_get)
+    validate_existence(variation_to_get, "variation_to_get")
 
     return jsonify(variation_to_get.serialize()), 200
 
@@ -62,12 +62,12 @@ def edit_weighted_variation(exercise_id, variation_id):
         id=variation_id,
         exercise_id=exercise_id
     ).first() 
-    validate_existence(variation_to_edit)
+    validate_existence(variation_to_edit, "variation_to_edit")
     
     exercise = WeightedExercise.query.get(exercise_id)
-    validate_existence(exercise)
+    validate_existence(exercise, "exercise")
     data = request.json
-    validate_existence(data)
+    validate_existence(data, "data")
     validate_is_not_blank(data.get('variation_name'))
     validate_length(data.get('variation_name'))
     validate_variation_not_repeated(exercise, data.get('variation_name'))
@@ -89,7 +89,7 @@ def delete_weighted_variation(exercise_id, variation_id):
         id=variation_id,
         exercise_id=exercise_id
     ).first() 
-    validate_existence(variation_to_delete)
+    validate_existence(variation_to_delete, "variation_to_delete")
     
     db.session.delete(variation_to_delete)
     db.session.commit()
