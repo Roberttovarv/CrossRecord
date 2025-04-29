@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from src.db.models.user_models import Users
 from src.db.models.user_follows_models import Follow
 from flask_cors import CORS
-from ...extensions import db
+from ...extensions import db, validate_existence
 
 follow_api = Blueprint('follow_api', __name__)
 
@@ -12,7 +12,8 @@ CORS(follow_api)
 def get_user_following(user_id):
 
     user = Users.query.get(user_id)
-    following = user.following
+    validate_existence(user, "user")
+    following = [follow.serialize() for follow in user.following]
 
     return jsonify(following), 200
 
@@ -20,7 +21,8 @@ def get_user_following(user_id):
 def get_user_followers(user_id):
     
     user = Users.query.get(user_id)
-    followers = user.followers
+    validate_existence(user, "user")
+    followers = [follower.serialize() for follower in user.followers]
 
     return jsonify(followers), 200
 
@@ -28,22 +30,19 @@ def get_user_followers(user_id):
 def add_new_follow(user_id):
 
     data = request.json
-    user_to_follow = data.get("user_to_follow")
-
-    if user_to_follow is None:
-        return jsonify({'error': 'Missing user_to_follow'}), 400
-    
+    validate_existence(data.get("user_to_follow"), "user_to_follow")
+    user_to_follow = data["user_to_follow"]
+ 
     user = Users.query.get(user_id)
+    validate_existence(user, "user")
     new_follow = Users.query.get(user_to_follow)
-
-    if not user or not new_follow:
-        return jsonify({'error':'User not found'}), 404
+    validate_existence(new_follow, "new_follow")
     
     existing_follow = Follow.query.filter_by(user_id=user_id, following_id=user_to_follow).first()
     if existing_follow:
         return jsonify({'message':'Already following'}), 400
     if user_id == user_to_follow:
-        return jsonify("'error': 'User ID is same than User to Follow'")
+        return jsonify({'error': 'User ID is same than User to Follow'}), 400
     
     follow = Follow(
         user_id=user_id,
@@ -53,7 +52,7 @@ def add_new_follow(user_id):
     db.session.add(follow)
     db.session.commit()
 
-    return jsonify(follow.serialize())
+    return jsonify(follow.serialize()), 201
 
 @follow_api.route('/users/<int:user_id>/following/<int:following_id>', methods=["DELETE"])
 def remove_follow(user_id, following_id):
