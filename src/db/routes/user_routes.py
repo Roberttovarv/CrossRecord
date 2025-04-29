@@ -2,9 +2,8 @@ from flask import Blueprint, request, jsonify
 from src.db.models.user_models import Users
 from src.db.models.user_follows_models import Follow
 from flask_cors import CORS
-from ...extensions import db
+from ...extensions import db, validate
 from flask_jwt_extended import jwt_required
-
 
 user_api = Blueprint('user_api', __name__)
 
