@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from src.db.models.user_models import Users
-from ...extensions import db
+from ...extensions import db, validate_existence
 from flask_jwt_extended import create_access_token
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -13,6 +13,7 @@ CORS(auth_api)
 def signup():
     response_body = {}
     data = request.json
+    validate_existence(data, "data")    
 
     required_fields = ['email', 'password', 'name', 'last_name', 'username']
 
@@ -61,6 +62,7 @@ def signup():
 def login():
     response_body = {}
     data = request.json
+    validate_existence(data, "data")
     email = data["email"]
     password = data["password"]
     user = Users.query.filter_by(email=email, password=password).first()
