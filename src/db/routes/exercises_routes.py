@@ -4,7 +4,7 @@ from src.db.models.weighted_models import WeightedExercise, WeightedExerciseVari
 from src.db.models.cardio_models import CardioExercise, CardioExerciseVariations 
 from flask_jwt_extended import create_access_token
 from flask_cors import CORS
-from ...extensions import db, validate_existence, validate_is_not_blank, validate_length, validate_variation_not_repeated
+from ...extensions import db, validate_existence, validate_is_not_blank, validate_length 
 
 
 exercises_api = Blueprint('exercises_api', __name__)
@@ -34,7 +34,8 @@ def add_weighted_exercise():
 
     data = request.json
     validate_existence(data.get("exercise_name"))
-    validate_length(data.get("exercise_name"))
+    validate_length(data["exercise_name"])
+    validate_is_not_blank(data["exercise_name"])
 
     new_exercise = WeightedExercise(exercise_name=data["exercise_name"])
 
@@ -57,6 +58,8 @@ def add_calisthenic_exercise():
 
     data = request.json
     validate_existence(data.get("exercise_name"))
+    validate_length(data["exercise_name"])
+    validate_is_not_blank(data["exercise_name"])
 
     new_exercise = CalisthenicExercises(exercise_name=data["exercise_name"])
 
@@ -79,6 +82,8 @@ def add_cardio_exercise():
 
     data = request.json
     validate_existence(data.get("exercise_name"))
+    validate_length(data["exercise_name"])
+    validate_is_not_blank(data["exercise_name"])
 
     new_exercise = CardioExercise(exercise_name=data["exercise_name"])
 
