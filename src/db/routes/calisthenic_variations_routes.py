@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 from src.db.models.calisthenic_models import CalisthenicExercises, CalisthenicExerciseVariations
-from ...extensions import db
+from ...extensions import db, validate_is_not_blank, validate_existence, validate_length, validate_variation_not_repeated
 
 
 calisthenic_variations_api = Blueprint('calisthenic_variations_api', __name__)
@@ -13,8 +13,7 @@ CORS(calisthenic_variations_api)
 def get_all_calisthenic_variations(exercise_id):
     
     exercise = CalisthenicExercises.query.get(exercise_id)
-    if not exercise:
-        return jsonify({'error': 'No exercise was found with that ID'}), 404
+    validate_existence(exercise, "exercise")
 
     return jsonify({
         'exercise': exercise.exercise_name,
@@ -26,24 +25,13 @@ def get_all_calisthenic_variations(exercise_id):
 def add_calisthenic_variation(exercise_id):
 
     data = request.json
-    if not data:
-        return jsonify({'error': 'Data must not be empty'})
-
-    if ('variation_name' in data and
-        not data['variation_name'].strip() or
-        not isinstance(data["variation_name"], str)
-    ):
-        return jsonify({'error': 'Variation name cannot be empty or just spaces'}), 400
-    
-    if len(data["variation_name"]) < 5 or len(data["variation_name"]) > 40:
-        return jsonify({'error': 'variation_name must be from 5 to 40 characters'})
+    validate_existence(data.get("variation_name"), "variation_name")
+    validate_is_not_blank(data["variation_name"])
+    validate_length(data["variation_name"])
     
     exercise = CalisthenicExercises.query.get(exercise_id)
-    if not exercise:
-        return jsonify({'error': 'No exercise was found with that ID'}), 404
-    if any(variation.variation_name.lower() == data["variation_name"].strip().lower()
-           for variation in exercise.variations):
-        return jsonify({'error': 'Variation with this name already exists'})
+    validate_existence(exercise, "exercise")
+    validate_variation_not_repeated(exercise, data["variation_name"])
        
     new_variation = CalisthenicExerciseVariations(
         variation_name = data["variation_name"].lower().strip(),
@@ -63,8 +51,7 @@ def get_single_calisthenic_variation(exercise_id, variation_id):
         id=variation_id,
         exercise_id=exercise_id
     ).first()
-    if not variation_to_get:
-        return jsonify({'error': 'No variation was found with that ID'}), 404
+    validate_existence(variation_to_get, "variation_to_get")
     
     return jsonify(variation_to_get.serialize())
 
@@ -76,27 +63,16 @@ def edit_calisthenic_variation(exercise_id, variation_id):
         id=variation_id,
         exercise_id=exercise_id
     ).first()
-    if not variation_to_edit:
-       return jsonify({'error': 'No variation was found with that ID'}), 404
+    validate_existence(variation_to_edit, "variation_to_edit")
 
     exercise = CalisthenicExercises.query.get(exercise_id)
+    validate_existence(exercise, "exercise")
     data = request.json
-    if not data:
-        jsonify({'error': 'Data must not be empty'})
-    
-    if ('variation_name' in data and
-        not data['variation_name'].strip() or
-        not isinstance(data["variation_name"], str)
-    ):
-        return jsonify({'error': 'Variation name cannot be empty or just spaces'}), 400
-    
-    if len(data["variation_name"]) < 5 or len(data["variation_name"]) > 40:
-        return jsonify({'error': 'variation_name must be from 5 to 40 characters'})
-    
-    if any(variation.variation_name.lower() == data["variation_name"].strip().lower()
-           for variation in exercise.variations):
-        return jsonify({'error': 'Variation with this name already exists'})
-        
+    validate_existence(data.get("variation_name"))
+    validate_is_not_blank(data["variation_name"])
+    validate_length(data["variation_name"])
+    validate_variation_not_repeated(exercise, data["variation_name"])
+         
     variation_to_edit.variation_name = data.get('variation_name',
                                                 variation_to_edit.variation_name).lower().strip()
     
@@ -114,8 +90,7 @@ def delete_calisthenic_variation(exercise_id, variation_id):
         id=variation_id,
         exercise_id=exercise_id
     ).first()
-    if not variation_to_delete:
-        return jsonify({'error': 'No variation was found with that ID'}), 404
+    validate_existence(variation_to_delete, "variation_to_delete")
     
     db.session.delete(variation_to_delete)
     db.session.commit()
