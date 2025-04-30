@@ -3,7 +3,7 @@ from flask import jsonify, abort
 
 db = SQLAlchemy()
 
-def validate_existence(param, name: str):
+def validate_existence(param, name: str="property"):
     if not param:
         response = jsonify({'error':f'{name} is required to proceed'})
         response.status_code = 400
@@ -14,7 +14,7 @@ def validate_is_not_blank(param: str):
         response = jsonify({'error':'variation_name cannot be empty, null or just spaces'})
         response.status_code = 400
         abort(response)
-        
+
 def validate_length(param: str):
     if len(param) < 5 or len(param) > 40:
         return jsonify({'error': 'variation_name must be from 5 to 40 characters'})

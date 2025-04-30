@@ -24,13 +24,13 @@ def get_all_weighted_variations(exercise_id):
 def add_weighted_variation(exercise_id):
     
     data = request.json
-    validate_existence(data, "data")
-    validate_is_not_blank(data.get('variation_name'))
-    validate_length(data.get('variation_name'))
+    validate_existence(data.get("variation_name"), "variation_name")
+    validate_is_not_blank(data["variation_name"])
+    validate_length(data["variation_name"])
     
     exercise = WeightedExercise.query.get(exercise_id)
     validate_existence(exercise, "exercise")
-    validate_variation_not_repeated(exercise, data.get('variation_name'))
+    validate_variation_not_repeated(exercise, data["variation_name"])
     
     new_variation = WeightedExerciseVariations(
         variation_name=data["variation_name"],
@@ -67,10 +67,10 @@ def edit_weighted_variation(exercise_id, variation_id):
     exercise = WeightedExercise.query.get(exercise_id)
     validate_existence(exercise, "exercise")
     data = request.json
-    validate_existence(data, "data")
-    validate_is_not_blank(data.get('variation_name'))
-    validate_length(data.get('variation_name'))
-    validate_variation_not_repeated(exercise, data.get('variation_name'))
+    validate_existence(data.get("variation_name"), "data")
+    validate_is_not_blank(data["variation_name"])
+    validate_length(data["variation_name"])
+    validate_variation_not_repeated(exercise, data["variation_name"])
     
     variation_to_edit.variation_name = data.get('variation_name',
                                                 variation_to_edit.variation_name).strip().lower()
