@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from src.db.models.user_models import Users
-from ...extensions import db, validate_existence
+from src.extensions import db, validate_existence
 from flask_jwt_extended import create_access_token
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy

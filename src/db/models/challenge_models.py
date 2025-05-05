@@ -1,4 +1,4 @@
-from ...extensions import db
+from src.extensions import db
 
 class CardioChallenge(db.Model):
     id = db.Column(db.Integer(), primary_key=True)

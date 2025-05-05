@@ -1,4 +1,4 @@
-from ...extensions import db, validate_is_not_blank, validate_existence, validate_length, validate_variation_not_repeated
+from src.extensions import db, validate_is_not_blank, validate_existence, validate_length, validate_variation_not_repeated
 
 class CalisthenicExercises(db.Model):
     __tablename__ = 'calisthenic_exercises'

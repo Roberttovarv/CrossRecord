@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from src.db.models.user_models import Users
 from src.db.models.user_follows_models import Follow
 from flask_cors import CORS
-from ...extensions import db, validate_existence
+from src.extensions import db, validate_existence
 
 follow_api = Blueprint('follow_api', __name__)
 

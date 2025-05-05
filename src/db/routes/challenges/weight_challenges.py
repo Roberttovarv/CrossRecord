@@ -3,7 +3,7 @@ from flask_cors import CORS
 from src.db.models.challenge_models import WeightedChallenge
 from src.db.models.weighted_models import WeightedExerciseVariations
 from src.db.models.user_models import Users
-from ....extensions import db, validate_existence
+from src.extensions import db, validate_existence
 from datetime import datetime
 
 weighted_challenges_api = Blueprint("weighted_challenges_api", __name__)

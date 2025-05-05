@@ -1,5 +1,5 @@
 from sqlalchemy.orm import validates
-from ...extensions import db
+from src.extensions import db
 
 
 class Users(db.Model):
@@ -25,8 +25,8 @@ class Users(db.Model):
             'username': self.username,
             'weight': self.weight,
             'is_premium': self.is_premium,
-            'following': [f.followed.username for f in self.following],
-            'followers': [f.follower.username for f in self.followers],
+            'following': [f.followed_user.username for f in self.following],
+            'followers': [f.user_that_follows.username for f in self.followers],
             'sent_challenges': [*[c.serialize() for c in self.sent_cardio_challenges],
                                 *[c.serialize() for c in self.sent_calisthenic_challenges],
                                 *[c.serialize() for c in self.sent_weighted_challenges]],

@@ -4,7 +4,7 @@ from src.db.models.weighted_models import WeightedExercise, WeightedExerciseVari
 from src.db.models.cardio_models import CardioExercise, CardioExerciseVariations 
 from flask_jwt_extended import create_access_token
 from flask_cors import CORS
-from ...extensions import db, validate_existence, validate_is_not_blank, validate_length 
+from src.extensions import db, validate_existence, validate_is_not_blank, validate_length 
 
 
 exercises_api = Blueprint('exercises_api', __name__)

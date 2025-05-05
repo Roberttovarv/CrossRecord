@@ -1,4 +1,4 @@
-from ...extensions import db
+from src.extensions import db
 
 class WeightedExercise(db.Model):
     __tablename__ = 'weighted_exercises'

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 from src.db.models.weighted_models import WeightRecord, WeightedExerciseVariations
-from ....extensions import db, validate_existence
+from src.extensions import db, validate_existence
 from datetime import datetime
 
 weighted_records_api = Blueprint('weighted_records_api', __name__)

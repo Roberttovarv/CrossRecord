@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 from src.db.models.cardio_models import CardioRecord, CardioExerciseVariations
-from ....extensions import db, validate_existence
+from src.extensions import db, validate_existence
 from datetime import datetime
 
 cardio_records_api = Blueprint("cardio_records_api", __name__)

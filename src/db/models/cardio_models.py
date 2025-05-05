@@ -1,4 +1,4 @@
-from ...extensions import db
+from src.extensions import db
  
 class CardioExercise(db.Model):
     __tablename__ = 'cardio_exercises'
