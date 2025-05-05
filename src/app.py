@@ -49,8 +49,8 @@ def create_app():
     app.register_blueprint(calisthenic_records_api)
     app.register_blueprint(weighted_records_api)
 
-    from .db.models import user_models, calisthenic_models, cardio_models, weighted_models, challenge_models, user_follows_models
-    from .db.routes import auth_routes, calisthenic_variations_routes, exercises_routes, user_routes, weighted_variations_routes
+    # from .db.models import user_models, calisthenic_models, cardio_models, weighted_models, challenge_models, user_follows_models
+    # from .db.routes import auth_routes, calisthenic_variations_routes, exercises_routes, user_routes, weighted_variations_routes
 
     jwt.init_app(app)       
     @app.route('/')
