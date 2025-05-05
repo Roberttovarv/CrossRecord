@@ -35,6 +35,7 @@ class CardioRecord(db.Model):
     time = db.Column(db.Integer(), nullable=False)
     date = db.Column(db.Date(), nullable=False)
     is_a_challenge = db.Column(db.Boolean(), nullable=False)
+    is_private = db.Column(db.Boolean(), nullable=False)
 
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
     variation_id = db.Column(db.Integer(), db.ForeignKey('cardio_exercise_variations.id'), nullable=False)
