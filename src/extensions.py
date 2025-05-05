@@ -5,7 +5,7 @@ db = SQLAlchemy()
 
 def validate_existence(param, name: str="property"):
     if not param:
-        response = jsonify({'error':f'{name} is required to proceed'})
+        response = jsonify({'error':f'{name} not found.'})
         response.status_code = 400
         abort(response)
 
