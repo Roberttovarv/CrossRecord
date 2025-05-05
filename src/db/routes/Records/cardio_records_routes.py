@@ -44,6 +44,7 @@ def add_cardio_variation_record(user_id, exercise_id, variation_id):
         time=data["time"],
         date = datetime.utcnow().date,
         is_a_challenge=data.get("is_a_challenge", False),
+        is_private=data.get("is_private", False),
         user_id=user_id,
         variation_id=variation_id
     )
@@ -92,7 +93,9 @@ def edit_single_cardio_variation_record(user_id, exercise_id, variation_id, reco
 
     record.calories = data["calories"]
     if "date" in data:
-        record.date = datetime.strptime(data["date"], "%d/%m/%Y").date()
+        record.date=datetime.strptime(data["date"], "%d/%m/%Y").date()
+    if "is_private" in data:
+        record.is_pivate= data["is_private"]
     
     db.session.commit()
 

@@ -43,6 +43,7 @@ def add_weighted_variation_record(user_id, exercise_id, variation_id):
         lifted_weight=data["lifted_weight"],
         date=datetime.utcnow().date(),
         is_a_challenge=data.get("is_a_challenge", False),
+        is_private=data.get("is_private", False),
         user_id=user_id,
         variation_id=variation_id
     )
@@ -92,6 +93,8 @@ def edit_single_weighted_variation_record(user_id, exercise_id, variation_id, re
     record.lifted_weight = data["repetitions"]
     if "date" in data:
         record.date = datetime.strptime(data["date"], "%d/%m/%Y").date()
+    if "is_private" in data:
+        record.is_private=data["is_private"]
 
     db.session.commit()
 
