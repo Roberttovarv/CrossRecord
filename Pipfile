@@ -19,3 +19,4 @@ python_version = "3.12"
 
 [scripts]
 start = "python -m src.app"
+env = "$env:FLASK_APP = 'manage.py'"

@@ -37,7 +37,7 @@ class CalisthenicChallenge(db.Model):
     is_completed = db.Column(db.Boolean(), nullable=False)
 
     challenger = db.relationship('Users', foreign_keys=[challenger_id], backref='sent_calisthenic_challenges')
-    challenged = db.relationship('Users', foreign_keys=[challenged_id], backref='receivde_calisthenic_challenges')
+    challenged = db.relationship('Users', foreign_keys=[challenged_id], backref='received_calisthenic_challenges')
     calisthenic_variation = db.relationship('CalisthenicExerciseVariations')
 
     def serialize(self):
@@ -63,7 +63,7 @@ class WeightedChallenge(db.Model):
     is_completed = db.Column(db.Boolean(), nullable=False)
 
     challenger = db.relationship('Users', foreign_keys=[challenger_id], backref='sent_weighted_challenges')
-    challenged = db.relationship('Users', foreign_keys=[challenged_id], backref='receivde_weighted_challenges')
+    challenged = db.relationship('Users', foreign_keys=[challenged_id], backref='received_weighted_challenges')
     weighted_variation = db.relationship('WeightedExerciseVariations')
 
     def serialize(self):
