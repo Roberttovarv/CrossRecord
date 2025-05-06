@@ -10,45 +10,25 @@ weighted_challenges_api = Blueprint("weighted_challenges_api", __name__)
 
 CORS(weighted_challenges_api)
 
-@weighted_challenges_api.route('/users/<int:user_id>/challenges/received',
-                               methods=["GET"])
-def get_all_received_challenges(user_id):
-    user = Users.query.get(user_id)
-    validate_existence(user, "user")
-
-    all_received_challenges = user.serialize()['received_challenges']
-
-    return jsonify(all_received_challenges), 200
-
-@weighted_challenges_api.route('/users/<int:user_id>/challenges/sent',
-                               methods=["GET"])
-def get_all_sent_challenges(user_id):
-    user = Users.query.get(user_id)
-    validate_existence(user, "user")
-
-    all_sent_challenges = user.serialize()['sent_challenges']
-
-    return jsonify(all_sent_challenges), 200
-
 @weighted_challenges_api.route('/users/<int:user_id>/exercises/weighted/<int:exercise_id>/challenges',
                                methods=["GET"])
-def get_all_exercise_challenges(user_id, exercise_id):
+def get_all_weighted_exercise_challenges(user_id, exercise_id):
     user = Users.query.get(user_id)
     validate_existence(user, "user")
 
     variations = WeightedExerciseVariations.query.filter_by(exercise_id=exercise_id).all()
     variations_ids = [variation.id for variation in variations]
 
-    all_exercice_challenges = [
+    all_weighted_exercice_challenges = [
         challenge.serialize() for challenge in user.received_weighted_challenges
         if challenge.variation_id in variations_ids
     ]
 
-    return jsonify(all_exercice_challenges), 200
+    return jsonify(all_weighted_exercice_challenges), 200
 
 @weighted_challenges_api.route('/users/<int:user_id>/exercises/weighted/<int:exercise_id>/variations/<int:variation_id>/challenges',
                                methods=["GET"])
-def get_all_single_variation_challenges(user_id, exercise_id, variation_id):
+def get_all_single_weighted_variation_challenges(user_id, exercise_id, variation_id):
     user = Users.query.get(user_id)
     validate_existence(user, "user")
 
@@ -58,17 +38,16 @@ def get_all_single_variation_challenges(user_id, exercise_id, variation_id):
     ).first()
     validate_existence(variation, "variation")
 
-
-    all_variation_challenges = [
+    all_weighted_variation_challenges = [
         challenge.serialize() for challenge in user.received_weighted_challenges
         if challenge.variation_id == variation_id
     ]
 
-    return jsonify(all_variation_challenges), 200
+    return jsonify(all_weighted_variation_challenges), 200
 
 @weighted_challenges_api.route('/users/<int:challenged_id>/exercises/weighted/<int:exercise_id>/variations/<int:variation_id>/challenges',
                                methods=["POST"])
-def get_single_weighted_variation_challenge(challenged_id, exercise_id, variation_id):
+def add_single_weighted_variation_challenge(challenged_id, exercise_id, variation_id):
     data = request.json
     validate_existence(data, "data")
 
@@ -85,7 +64,7 @@ def get_single_weighted_variation_challenge(challenged_id, exercise_id, variatio
         id=variation_id,
         exercise_id=exercise_id
     ).first()
-    validate_existence(variation)
+    validate_existence(variation, "variation")
 
     challenge = WeightedChallenge(
         challenger_id=challenger_id,
@@ -99,6 +78,11 @@ def get_single_weighted_variation_challenge(challenged_id, exercise_id, variatio
     
     db.session.add(challenge)
     db.session.commit()
+
+    return jsonify({
+        'message':f'Challenge created successfully',
+        'challenge':challenge.serialize()
+    }), 201
 
 @weighted_challenges_api.route('/users/<int:user_id>/exercises/weighted/<int:exercise_id>/variations/<int:variation_id>/challenges/<int:challenge_id>',
                                methods=["GET"])
@@ -123,7 +107,7 @@ def get_single_weighted_variation_challenge(user_id, exercise_id, variation_id, 
 
 @weighted_challenges_api.route('/users/<int:user_id>/exercises/weighted/<int:exercise_id>/variations/<int:variation_id>/challenges/<int:challenge_id>',
                                methods=["PUT"])
-def put_single_weighted_variation_challenge(user_id, exercise_id, variation_id, challenge_id):
+def edit_single_weighted_variation_challenge(user_id, exercise_id, variation_id, challenge_id):
     user = Users.query.get(user_id)
     validate_existence(user, "user")
 
@@ -164,7 +148,6 @@ def delete_single_weighted_variation_challenge(user_id, exercise_id, variation_i
         challenged_id=user_id
     ).first()
     validate_existence(challenge, "challenge")
-
     if challenge.is_completed:
         return jsonify({'error':'Completed challenges cant be deleted'})
 
