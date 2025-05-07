@@ -45,19 +45,19 @@ def get_all_single_weighted_variation_challenges(user_id, exercise_id, variation
 
     return jsonify(all_weighted_variation_challenges), 200
 
-@weighted_challenges_api.route('/users/<int:challenged_id>/exercises/weighted/<int:exercise_id>/variations/<int:variation_id>/challenges',
+@weighted_challenges_api.route('/users/<int:user_id>/exercises/weighted/<int:exercise_id>/variations/<int:variation_id>/challenges',
                                methods=["POST"])
-def add_single_weighted_variation_challenge(challenged_id, exercise_id, variation_id):
+def add_single_weighted_variation_challenge(user_id, exercise_id, variation_id):
     data = request.json
     validate_existence(data, "data")
 
     challenger_id = data.get("challenger_id")
-    if challenger_id == challenged_id:
+    if challenger_id == user_id:
         return jsonify({'error': 'You cant challenge yourself'})
     
     challenger = Users.query.get(challenger_id)
     validate_existence(challenger, "challenger")
-    challenged = Users.query.get(challenged_id)
+    challenged = Users.query.get(user_id)
     validate_existence(challenged, "challenged")
 
     variation = WeightedExerciseVariations.query.filter_by(
@@ -68,7 +68,7 @@ def add_single_weighted_variation_challenge(challenged_id, exercise_id, variatio
 
     challenge = WeightedChallenge(
         challenger_id=challenger_id,
-        challenged_id=challenged_id,
+        challenged_id=user_id,
         variation_id=variation_id,
         record_to_complete=data["record_to_complete"],
         message=data.get("message", ""),
