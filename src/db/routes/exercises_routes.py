@@ -1,8 +1,7 @@
 from flask import Blueprint, request, jsonify
-from src.db.models.calisthenic_models import CalisthenicExercises, CalisthenicExerciseVariations 
-from src.db.models.weighted_models import WeightedExercise, WeightedExerciseVariations 
-from src.db.models.cardio_models import CardioExercise, CardioExerciseVariations 
-from flask_jwt_extended import create_access_token
+from src.db.models.calisthenic_models import CalisthenicExercises 
+from src.db.models.weighted_models import WeightedExercise 
+from src.db.models.cardio_models import CardioExercise 
 from flask_cors import CORS
 from src.extensions import db, validate_existence, validate_is_not_blank, validate_length 
 
@@ -43,6 +42,13 @@ def add_weighted_exercise():
     db.session.commit()
     return jsonify(new_exercise.serialize()), 201
 
+@exercises_api.route('/exercises/weighted/<int:exercise_id>', methods=["GET"])
+def get_weighted_exercise(exercise_id):
+    exercise = WeightedExercise.query.get(exercise_id)
+    validate_existence(exercise, "exercise")
+
+    return jsonify(exercise.serialize()), 200
+
 @exercises_api.route('/exercises/weighted/<int:exercise_id>', methods=["DELETE"])
 def delete_weighted_exercise(exercise_id):
     exercise_to_delete = WeightedExercise.query.get(exercise_id)
@@ -67,6 +73,13 @@ def add_calisthenic_exercise():
     db.session.commit()
     return jsonify(new_exercise.serialize()), 201
 
+@exercises_api.route('/exercises/calisthenic/<int:exercise_id>', methods=["GET"])
+def get_calisthenic_exercise(exercise_id):
+    exercise = CalisthenicExercises.query.get(exercise_id)
+    validate_existence(exercise, "exercise")
+
+    return jsonify(exercise.serialize()), 200
+
 @exercises_api.route('/exercises/calisthenic/<int:exercise_id>', methods=["DELETE"])
 def delete_calisthenic_exercise(exercise_id):
     exercise_to_delete = CalisthenicExercises.query.get(exercise_id)
@@ -90,6 +103,13 @@ def add_cardio_exercise():
     db.session.add(new_exercise)
     db.session.commit()
     return jsonify(new_exercise.serialize()), 201
+
+@exercises_api.route('/exercises/cardio/<int:exercise_id>', methods=["GET"])
+def get_cardio_exercise(exercise_id):
+    exercise = CardioExercise.query.get(exercise_id)
+    validate_existence(exercise, "exercise")
+
+    return jsonify(exercise.serialize()), 200
 
 @exercises_api.route('/exercises/cardio/<int:exercise_id>', methods=["DELETE"])
 def delete_cardio_exercise(exercise_id):
