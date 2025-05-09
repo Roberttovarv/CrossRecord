@@ -35,7 +35,7 @@ def get_all_weighted_exercises():
 
     exercises = [single_exercise.serialize() for single_exercise in exercise]
 
-    return jsonify(exercises.serialize()), 200
+    return jsonify(exercises), 200
 
 @exercises_api.route('/exercises/weighted', methods=["POST"])
 def add_weighted_exercise():
@@ -75,7 +75,7 @@ def get_all_calisthenic_exercises():
 
     exercises = [single_exercise.serialize() for single_exercise in exercise]
 
-    return jsonify(exercises.serialize()), 200
+    return jsonify(exercises), 200
 
 @exercises_api.route('/exercises/calisthenic', methods=["POST"])
 def add_calisthenic_exercise():
@@ -115,7 +115,7 @@ def get_all_cardio_exercises():
 
     exercises = [single_exercise.serialize() for single_exercise in exercise]
 
-    return jsonify(exercises.serialize()), 200
+    return jsonify(exercises), 200
 
 @exercises_api.route('/exercises/cardio', methods=["POST"])
 def add_cardio_exercise():
