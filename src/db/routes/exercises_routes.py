@@ -30,8 +30,10 @@ def get_all_exercises():
 
 @exercises_api.route('/exercises/weighted', methods=["GET"])
 def get_all_weighted_exercises():
-    exercises = WeightedExercise.query.all()
-    validate_existence(exercises, "exercise")
+    exercise = WeightedExercise.query.all()
+    validate_existence(exercise, "exercise")
+
+    exercises = [single_exercise.serialize() for single_exercise in exercise]
 
     return jsonify(exercises.serialize()), 200
 
@@ -68,8 +70,10 @@ def delete_weighted_exercise(exercise_id):
 
 @exercises_api.route('/exercises/calisthenic', methods=["GET"])
 def get_all_calisthenic_exercises():
-    exercises = CalisthenicExercises.query.all()
-    validate_existence(exercises, "exercise")
+    exercise = CalisthenicExercises.query.all()
+    validate_existence(exercise, "exercise")
+
+    exercises = [single_exercise.serialize() for single_exercise in exercise]
 
     return jsonify(exercises.serialize()), 200
 
@@ -106,8 +110,10 @@ def delete_calisthenic_exercise(exercise_id):
 
 @exercises_api.route('/exercises/cardio', methods=["GET"])
 def get_all_cardio_exercises():
-    exercises = CardioExercise.query.all()
-    validate_existence(exercises, "exercise")
+    exercise = CardioExercise.query.all()
+    validate_existence(exercise, "exercise")
+
+    exercises = [single_exercise.serialize() for single_exercise in exercise]
 
     return jsonify(exercises.serialize()), 200
 
