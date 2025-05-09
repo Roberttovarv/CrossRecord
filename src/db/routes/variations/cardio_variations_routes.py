@@ -87,7 +87,7 @@ def edit_cardio_variation(exercise_id, variation_id):
 def delete_cardio_variation(exercise_id, variation_id):
 
     variation_to_delete = CardioExerciseVariations.query.filter_by(
-        variation_id=variation_id,
+        id=variation_id,
         exercise_id=exercise_id
     ).first()
     validate_existence(variation_to_delete, "variation_to_delete")
