@@ -44,7 +44,7 @@ def add_cardio_variation(exercise_id):
     return jsonify(new_variation.serialize()), 201
 
 @cardio_variations_api.route('/exercises/cardio/<int:exercise_id>/variations/<int:variation_id>',
-                             methods=["POST"])
+                             methods=["GET"])
 def get_single_cardio_variation(exercise_id, variation_id):
 
     variation_to_get = CardioExerciseVariations.query.filter_by(
