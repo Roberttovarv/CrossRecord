@@ -49,7 +49,7 @@ class CardioRecord(db.Model):
         user_weight = float(self.user.weight) 
         return {
             'id': self.id,
-            'calories': float(self.lifted_weight),
+            'calories': float(self.calories),
             'time': self.time,
             'date': self.date.strftime('%d/%m/%Y'),
             'bodyweight': float(user_weight),

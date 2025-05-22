@@ -48,7 +48,7 @@ class CalisthenicRecord(db.Model):
         user_weight = float(self.user.weight) 
         return {
             'id': self.id,
-            'lifted_weight': float(self.lifted_weight),
+            'repetitions': float(self.repetitions),
             'date': self.date.strftime('%d/%m/%Y'),
             'bodyweight': float(user_weight),
             'exercise': self.variation.variation_name,
