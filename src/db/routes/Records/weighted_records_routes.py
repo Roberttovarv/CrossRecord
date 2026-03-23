@@ -1,8 +1,10 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 from src.db.models.weighted_models import WeightRecord, WeightedExerciseVariations
-from src.extensions import db, validate_existence
+from src.db.models.user_models import Users
+from src.extensions import db, validate_existence, validate_user_access
 from datetime import datetime
+from flask_jwt_extended import jwt_required
 
 weighted_records_api = Blueprint('weighted_records_api', __name__)
 
@@ -29,9 +31,13 @@ def get_weighted_variation_records(user_id, exercise_id, variation_id):
 
 @weighted_records_api.route('/users/<int:user_id>/exercises/weighted/<int:exercise_id>/variations/<int:variation_id>/records',
                             methods=["POST"])
+@jwt_required()
 def add_weighted_variation_record(user_id, exercise_id, variation_id): 
+    validate_user_access(user_id)
     data = request.json
     validate_existence(data.get("lifted_weight"), "lifted_weight")
+    user = db.session.get(Users, user_id)
+    validate_existence(user, "user")
     
     variation = WeightedExerciseVariations.query.filter_by(
         id=variation_id,
@@ -44,6 +50,7 @@ def add_weighted_variation_record(user_id, exercise_id, variation_id):
         date=datetime.utcnow().date(),
         is_a_challenge=data.get("is_a_challenge", False),
         is_private=data.get("is_private", False),
+        bodyweight=user.weight,
         user_id=user_id,
         variation_id=variation_id
     )
@@ -73,7 +80,9 @@ def get_single_weighted_variation_record(user_id, exercise_id, variation_id, rec
 
 @weighted_records_api.route('/users/<int:user_id>/exercises/weighted/<int:exercise_id>/variations/<int:variation_id>/records/<int:record_id>',
                             methods=["PUT"])
+@jwt_required()
 def edit_single_weighted_variation_record(user_id, exercise_id, variation_id, record_id):
+    validate_user_access(user_id)
     variation = WeightedExerciseVariations.query.filter_by(
         id=variation_id,
         exercise_id=exercise_id
@@ -90,7 +99,8 @@ def edit_single_weighted_variation_record(user_id, exercise_id, variation_id, re
     data = request.json
     validate_existence(data, "data")
     
-    record.lifted_weight = data["repetitions"]
+    if "lifted_weight" in data:
+        record.lifted_weight = data["lifted_weight"]
     if "date" in data:
         record.date = datetime.strptime(data["date"], "%d/%m/%Y").date()
     if "is_private" in data:
@@ -102,7 +112,9 @@ def edit_single_weighted_variation_record(user_id, exercise_id, variation_id, re
 
 @weighted_records_api.route('/users/<int:user_id>/exercises/weighted/<int:exercise_id>/variations/<int:variation_id>/records/<int:record_id>',
                             methods=["DELETE"])
+@jwt_required()
 def delete_single_weighted_variation_record(user_id, exercise_id, variation_id, record_id):
+    validate_user_access(user_id)
     variation = WeightedExerciseVariations.query.filter_by(
         id=variation_id,
         exercise_id=exercise_id

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from src.extensions import db
 
 class CardioChallenge(db.Model):
@@ -9,6 +11,7 @@ class CardioChallenge(db.Model):
     message = db.Column(db.String(50), nullable=True)
     date = db.Column(db.Date, nullable=False)
     is_completed = db.Column(db.Boolean(), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default='pending')
 
     challenger = db.relationship('Users', foreign_keys=[challenger_id], backref='sent_cardio_challenges')
     challenged = db.relationship('Users', foreign_keys=[challenged_id], backref='received_cardio_challenges')
@@ -17,13 +20,20 @@ class CardioChallenge(db.Model):
     def serialize(self):
         return {
             'id': self.id,
+            'type': 'cardio',
+            'variation_id': self.variation_id,
+            'exercise_id': self.cardio_variation.exercise_id,
+            'challenger_id': self.challenger_id,
+            'challenged_id': self.challenged_id,
             'exercise': self.cardio_variation.variation_name,
             'challenger': self.challenger.username,
             'challenged': self.challenged.username,
             'record_to_complete': self.record_to_complete,
             'message': self.message,
             'date': self.date.strftime("%d/%m/%Y"),
-            'is_completed': self.is_completed
+            'expires_at': (self.date + timedelta(days=7)).strftime("%d/%m/%Y"),
+            'is_completed': self.is_completed,
+            'status': self.status
         }
 
 class CalisthenicChallenge(db.Model):
@@ -35,6 +45,7 @@ class CalisthenicChallenge(db.Model):
     message = db.Column(db.String(50))
     date = db.Column(db.Date, nullable=False)
     is_completed = db.Column(db.Boolean(), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default='pending')
 
     challenger = db.relationship('Users', foreign_keys=[challenger_id], backref='sent_calisthenic_challenges')
     challenged = db.relationship('Users', foreign_keys=[challenged_id], backref='received_calisthenic_challenges')
@@ -43,13 +54,20 @@ class CalisthenicChallenge(db.Model):
     def serialize(self):
         return {
             'id': self.id,
+            'type': 'calisthenic',
+            'variation_id': self.variation_id,
+            'exercise_id': self.calisthenic_variation.exercise_id,
+            'challenger_id': self.challenger_id,
+            'challenged_id': self.challenged_id,
             'exercise': self.calisthenic_variation.variation_name,
             'challenger': self.challenger.username,
             'challenged': self.challenged.username,
             'record_to_complete': self.record_to_complete,
             'message': self.message,
             'date': self.date.strftime("%d/%m/%Y"),
-            'is_completed': self.is_completed
+            'expires_at': (self.date + timedelta(days=7)).strftime("%d/%m/%Y"),
+            'is_completed': self.is_completed,
+            'status': self.status
         }
     
 class WeightedChallenge(db.Model):
@@ -61,6 +79,7 @@ class WeightedChallenge(db.Model):
     message = db.Column(db.String(50))
     date = db.Column(db.Date, nullable=False)
     is_completed = db.Column(db.Boolean(), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default='pending')
 
     challenger = db.relationship('Users', foreign_keys=[challenger_id], backref='sent_weighted_challenges')
     challenged = db.relationship('Users', foreign_keys=[challenged_id], backref='received_weighted_challenges')
@@ -69,11 +88,18 @@ class WeightedChallenge(db.Model):
     def serialize(self):
         return {
             'id': self.id,
+            'type': 'weighted',
+            'variation_id': self.variation_id,
+            'exercise_id': self.weighted_variation.exercise_id,
+            'challenger_id': self.challenger_id,
+            'challenged_id': self.challenged_id,
             'exercise': self.weighted_variation.variation_name,
             'challenger': self.challenger.username,
             'challenged': self.challenged.username,
             'record_to_complete': self.record_to_complete,
             'message': self.message,
             'date': self.date.strftime("%d/%m/%Y"),
-            'is_completed': self.is_completed
+            'expires_at': (self.date + timedelta(days=7)).strftime("%d/%m/%Y"),
+            'is_completed': self.is_completed,
+            'status': self.status
         }

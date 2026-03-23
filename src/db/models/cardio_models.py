@@ -46,13 +46,13 @@ class CardioRecord(db.Model):
     bodyweight = db.Column(db.Numeric(5, 2), nullable=True)
 
     def serialize(self):
-        user_weight = float(self.user.weight) 
+        stored_bodyweight = self.bodyweight if self.bodyweight is not None else self.user.weight
         return {
             'id': self.id,
             'calories': float(self.calories),
             'time': self.time,
             'date': self.date.strftime('%d/%m/%Y'),
-            'bodyweight': float(user_weight),
+            'bodyweight': float(stored_bodyweight) if stored_bodyweight is not None else None,
             'exercise': self.variation.variation_name,
             'is_a_challenge': self.is_a_challenge,
             'user': self.user.id

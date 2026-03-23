@@ -2,8 +2,9 @@ from flask import Blueprint, request, jsonify
 from src.db.models.user_models import Users
 from src.db.models.user_follows_models import Follow
 from flask_cors import CORS
-from src.extensions import db, validate_existence
+from src.extensions import db, validate_existence, validate_user_access
 from flask_jwt_extended import jwt_required
+from werkzeug.security import generate_password_hash
 
 user_api = Blueprint('user_api', __name__)
 
@@ -21,7 +22,7 @@ def get_users():
 @user_api.route('/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     response_body= {}
-    user = Users.query.get(user_id)
+    user = db.session.get(Users, user_id)
     validate_existence(user, "user")
     
     response_body["message"] = 'User found'
@@ -29,9 +30,11 @@ def get_user(user_id):
     return jsonify(response_body), 200
 
 @user_api.route('/users/<int:user_id>', methods=["PUT"])
+@jwt_required()
 def edit_user(user_id):
+    validate_user_access(user_id)
     response_body = {}
-    user = Users.query.get(user_id)
+    user = db.session.get(Users, user_id)
     validate_existence(user, "user")
     data = request.json 
     validate_existence(data, "data")
@@ -41,8 +44,11 @@ def edit_user(user_id):
     changed_fields = []
 
     for field in fields:
-        if data[field] and data[field] != getattr(user, field):
-            setattr(user, field, data[field])
+        new_value = data.get(field)
+        if new_value is not None and new_value != getattr(user, field):
+            if field == "password":
+                new_value = generate_password_hash(new_value)
+            setattr(user, field, new_value)
             changed_fields.append(field)            
 
     db.session.commit()
@@ -52,8 +58,10 @@ def edit_user(user_id):
     return jsonify(response_body), 200
 
 @user_api.route('/users/<int:user_id>', methods=['DELETE'])
+@jwt_required()
 def delete_user(user_id):
-    user = Users.query.get(user_id)
+    validate_user_access(user_id)
+    user = db.session.get(Users, user_id)
     validate_existence(user, "user")
     response_body = {}
   

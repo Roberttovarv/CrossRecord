@@ -11,13 +11,13 @@ CORS(cardio_variations_api)
 @cardio_variations_api.route('/exercises/cardio/<int:exercise_id>/variations',
                              methods=["GET"])
 def get_all_cardio_variations(exercise_id):
-    
-    exercise = CardioExercise.query.get(exercise_id)
+    exercise = db.session.get(CardioExercise, exercise_id)
     validate_existence(exercise, "exercise")
+    variations = CardioExerciseVariations.query.filter_by(exercise_id=exercise_id).all()
 
     return jsonify({
         'exercise': exercise.exercise_name,
-        'variations': [variation.serialize() for variation in exercise.variations]
+        'variations': [variation.serialize() for variation in variations]
     }), 200
 
 @cardio_variations_api.route('/exercises/cardio/<int:exercise_id>/variations',
@@ -29,7 +29,7 @@ def add_cardio_variation(exercise_id):
     validate_is_not_blank(data["variation_name"])
     validate_length(data["variation_name"])
     
-    exercise = CardioExercise.query.get(exercise_id)
+    exercise = db.session.get(CardioExercise, exercise_id)
     validate_existence(exercise, "exercise")
     validate_variation_not_repeated(exercise, data["variation_name"])
     
@@ -65,7 +65,7 @@ def edit_cardio_variation(exercise_id, variation_id):
     ).first()
     validate_existence(variation_to_edit, "variation_to_edit")
 
-    exercise = CardioExercise.query.get(exercise_id)
+    exercise = db.session.get(CardioExercise, exercise_id)
     validate_existence(exercise, "exercise")
     data = request.json
     validate_existence(data.get("variation_name"), "variation_name")

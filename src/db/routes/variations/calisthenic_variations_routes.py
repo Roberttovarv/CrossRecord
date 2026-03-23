@@ -11,13 +11,13 @@ CORS(calisthenic_variations_api)
 @calisthenic_variations_api.route('/exercises/calisthenic/<int:exercise_id>/variations',
                                   methods=["GET"])
 def get_all_calisthenic_variations(exercise_id):
-    
-    exercise = CalisthenicExercises.query.get(exercise_id)
+    exercise = db.session.get(CalisthenicExercises, exercise_id)
     validate_existence(exercise, "exercise")
+    variations = CalisthenicExerciseVariations.query.filter_by(exercise_id=exercise_id).all()
 
     return jsonify({
         'exercise': exercise.exercise_name,
-        'variations': [variation.serialize() for variation in exercise.variations]
+        'variations': [variation.serialize() for variation in variations]
     }), 200
 
 @calisthenic_variations_api.route('/exercises/calisthenic/<int:exercise_id>/variations',
@@ -29,7 +29,7 @@ def add_calisthenic_variation(exercise_id):
     validate_is_not_blank(data["variation_name"])
     validate_length(data["variation_name"])
     
-    exercise = CalisthenicExercises.query.get(exercise_id)
+    exercise = db.session.get(CalisthenicExercises, exercise_id)
     validate_existence(exercise, "exercise")
     validate_variation_not_repeated(exercise, data["variation_name"])
        
@@ -65,7 +65,7 @@ def edit_calisthenic_variation(exercise_id, variation_id):
     ).first()
     validate_existence(variation_to_edit, "variation_to_edit")
 
-    exercise = CalisthenicExercises.query.get(exercise_id)
+    exercise = db.session.get(CalisthenicExercises, exercise_id)
     validate_existence(exercise, "exercise")
     data = request.json
     validate_existence(data.get("variation_name"))

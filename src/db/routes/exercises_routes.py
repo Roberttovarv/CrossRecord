@@ -53,14 +53,14 @@ def add_weighted_exercise():
 
 @exercises_api.route('/exercises/weighted/<int:exercise_id>', methods=["GET"])
 def get_weighted_exercise(exercise_id):
-    exercise = WeightedExercise.query.get(exercise_id)
+    exercise = db.session.get(WeightedExercise, exercise_id)
     validate_existence(exercise, "exercise")
 
     return jsonify(exercise.serialize()), 200
 
 @exercises_api.route('/exercises/weighted/<int:exercise_id>', methods=["DELETE"])
 def delete_weighted_exercise(exercise_id):
-    exercise_to_delete = WeightedExercise.query.get(exercise_id)
+    exercise_to_delete = db.session.get(WeightedExercise, exercise_id)
     validate_existence(exercise_to_delete, "exercise_to_delete")
 
     db.session.delete(exercise_to_delete)
@@ -93,14 +93,14 @@ def add_calisthenic_exercise():
 
 @exercises_api.route('/exercises/calisthenic/<int:exercise_id>', methods=["GET"])
 def get_calisthenic_exercise(exercise_id):
-    exercise = CalisthenicExercises.query.get(exercise_id)
+    exercise = db.session.get(CalisthenicExercises, exercise_id)
     validate_existence(exercise, "exercise")
 
     return jsonify(exercise.serialize()), 200
 
 @exercises_api.route('/exercises/calisthenic/<int:exercise_id>', methods=["DELETE"])
 def delete_calisthenic_exercise(exercise_id):
-    exercise_to_delete = CalisthenicExercises.query.get(exercise_id)
+    exercise_to_delete = db.session.get(CalisthenicExercises, exercise_id)
     validate_existence(exercise_to_delete, "exercise_to_delete")
 
     db.session.delete(exercise_to_delete)
@@ -133,14 +133,14 @@ def add_cardio_exercise():
 
 @exercises_api.route('/exercises/cardio/<int:exercise_id>', methods=["GET"])
 def get_cardio_exercise(exercise_id):
-    exercise = CardioExercise.query.get(exercise_id)
+    exercise = db.session.get(CardioExercise, exercise_id)
     validate_existence(exercise, "exercise")
 
     return jsonify(exercise.serialize()), 200
 
 @exercises_api.route('/exercises/cardio/<int:exercise_id>', methods=["DELETE"])
 def delete_cardio_exercise(exercise_id):
-    exercise_to_delete = CardioExercise.query.get(exercise_id)
+    exercise_to_delete = db.session.get(CardioExercise, exercise_id)
     validate_existence(exercise_to_delete, "exercise_to_delete")
 
     db.session.delete(exercise_to_delete)

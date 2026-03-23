@@ -3,7 +3,7 @@ from src.db.models.user_models import Users
 from src.extensions import db, validate_existence
 from flask_jwt_extended import create_access_token
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 auth_api = Blueprint('auth_api', __name__)
 
@@ -26,7 +26,7 @@ def signup():
     name = data["name"].lower()
     last_name = data["last_name"].lower()
     username = data["username"].lower()
-    weight = data["weight"]
+    weight = data.get("weight")
 
     existing_email = Users.query.filter_by(email=email).first()
     existing_username = Users.query.filter_by(username=username).first()
@@ -40,8 +40,7 @@ def signup():
 
     new_user = Users(
         email = email,
-        password = password, # Hashear password
-        is_premium = False,
+        password = generate_password_hash(password),
         name =  name,
         last_name = last_name,
         username = username,
@@ -65,9 +64,14 @@ def login():
     validate_existence(data, "data")
     email = data["email"]
     password = data["password"]
-    user = Users.query.filter_by(email=email, password=password).first()
+    user = Users.query.filter_by(email=email).first()
 
-    if user:
+    if user and (
+        check_password_hash(user.password, password) or user.password == password
+    ):
+        if user.password == password:
+            user.password = generate_password_hash(password)
+            db.session.commit()
         access_token = create_access_token(identity={'user_id': user.id})
         response_body['message'] = 'User logged in'
         response_body['access_token'] = access_token
