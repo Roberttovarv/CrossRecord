@@ -1,82 +1,32 @@
-from flask import Blueprint, request, jsonify
-from src.db.models.user_models import Users
-from src.extensions import db, validate_existence
+from flask import Blueprint, jsonify
 from flask_jwt_extended import create_access_token
-from flask_cors import CORS
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
-auth_api = Blueprint('auth_api', __name__)
+from ..common import APIError, body, boolean, fail, number, text_field
+from ..connection import db, now
+from ..services.users import private_user
 
-CORS(auth_api)
+auth_api = Blueprint("auth_api", __name__)
 
-@auth_api.route('/register', methods=['POST'])
-def signup():
-    response_body = {}
-    data = request.json
-    validate_existence(data, "data")    
 
-    required_fields = ['email', 'password', 'name', 'last_name', 'username']
+@auth_api.post("/auth/register")
+def register():
+    data = body()
+    email = text_field(data, "email", 254).lower()
+    username = text_field(data, "username", 20)
+    password = text_field(data, "password", 128)
+    if "@" not in email or len(password) < 8:
+        raise APIError("Invalid email or password (minimum 8 characters)")
+    user = {"email": email, "email_key": email.casefold(), "username": username, "username_key": username.casefold(), "password_hash": generate_password_hash(password), "name": text_field(data, "name", 50), "last_name": text_field(data, "last_name", 50), "profile_picture": None, "profile_private": boolean(data, "profile_private", False), "weight": number(data["weight"], "weight") if data.get("weight") is not None else None, "premium": False, "is_admin": False, "created_at": now()}
+    user["_id"] = db().users.insert_one(user).inserted_id
+    return jsonify(user=private_user(user), access_token=create_access_token(identity=str(user["_id"]))), 201
 
-    for field in required_fields:
-        if not data.get(field):
-            return jsonify({"error": f"the field '{field}' is required"}), 400
 
-    email = data["email"].lower()
-    password = data["password"]
-    name = data["name"].lower()
-    last_name = data["last_name"].lower()
-    username = data["username"].lower()
-    weight = data.get("weight")
-
-    existing_email = Users.query.filter_by(email=email).first()
-    existing_username = Users.query.filter_by(username=username).first()
-
-    if existing_email or existing_username:
-        if existing_email:
-            response_body['error'] = f"An account is already using {email}"
-        elif existing_username:
-            response_body['error'] = f"An account is already using {username}"
-        return jsonify(response_body), 400
-
-    new_user = Users(
-        email = email,
-        password = generate_password_hash(password),
-        name =  name,
-        last_name = last_name,
-        username = username,
-        weight = weight
-
-    )
-
-    db.session.add(new_user)
-    db.session.commit()
-
-    access_token = create_access_token(identity={'user_id': new_user.id})
-    response_body['message'] = 'User created'
-    response_body['token'] = access_token
-
-    return jsonify(response_body), 201
-
-@auth_api.route('/login', methods=['POST'])
+@auth_api.post("/auth/login")
 def login():
-    response_body = {}
-    data = request.json
-    validate_existence(data, "data")
-    email = data["email"]
-    password = data["password"]
-    user = Users.query.filter_by(email=email).first()
-
-    if user and (
-        check_password_hash(user.password, password) or user.password == password
-    ):
-        if user.password == password:
-            user.password = generate_password_hash(password)
-            db.session.commit()
-        access_token = create_access_token(identity={'user_id': user.id})
-        response_body['message'] = 'User logged in'
-        response_body['access_token'] = access_token
-        response_body['user_data'] = user.serialize()
-        return jsonify(response_body), 200
-    else:
-        response_body['message'] = 'Invalid user or password'
-        return jsonify(response_body), 401
+    data = body()
+    user = db().users.find_one({"email_key": text_field(data, "email", 254).casefold()})
+    password = data.get("password")
+    if not user or not isinstance(password, str) or not check_password_hash(user["password_hash"], password):
+        return fail("Invalid credentials", 401)
+    return jsonify(user=private_user(user), access_token=create_access_token(identity=str(user["_id"])))

@@ -1,74 +1,36 @@
-from flask import Flask
-from flask_migrate import Migrate # type: ignore
-from flask_jwt_extended import JWTManager
 import os
-from src.extensions import db
+
+from flask import Flask, jsonify
+from flask_jwt_extended import JWTManager
+from pymongo import MongoClient
+
+from .api import api
+from .db.connection import create_indexes
 
 
-from .db.routes.auth_routes import auth_api
-from .db.routes.user_routes import user_api
-from .db.routes.variations.calisthenic_variations_routes import calisthenic_variations_api
-from .db.routes.variations.weighted_variations_routes import weighted_variations_api
-from .db.routes.variations.cardio_variations_routes import cardio_variations_api
-from .db.routes.exercises_routes import exercises_api
-from .db.routes.follow_routes import follow_api
-from .db.routes.Records.calisthenic_records_routes import calisthenic_records_api
-from .db.routes.Records.cardio_records_routes import cardio_records_api
-from .db.routes.Records.weighted_records_routes import weighted_records_api
-from .db.routes.challenges.weight_challenges_routes import weighted_challenges_api
-from .db.routes.challenges.calisthenic_challenges_routes import calisthenic_challenges_api
-from .db.routes.challenges.cardio_challenges_routes import cardio_challenges_api
-from .db.routes.challenges.user_challenges_routes import user_challenges_api
-
-
-jwt = JWTManager()
-
-def create_app():
+def create_app(config=None):
     app = Flask(__name__)
+    app.config.update(
+        MONGO_URI=os.environ.get("MONGO_URI", "mongodb://localhost:27017/?replicaSet=rs0"),
+        MONGO_DATABASE=os.environ.get("MONGO_DATABASE", "crossrecord"),
+        JWT_SECRET_KEY=os.environ.get("JWT_SECRET_KEY"),
+    )
+    if config:
+        app.config.update(config)
+    if not app.config["JWT_SECRET_KEY"]:
+        raise RuntimeError("JWT_SECRET_KEY must be configured")
+    app.extensions["mongo_client"] = app.config.get("MONGO_CLIENT") or MongoClient(app.config["MONGO_URI"], tz_aware=True)
+    app.extensions["mongo_db"] = app.extensions["mongo_client"][app.config["MONGO_DATABASE"]]
+    JWTManager(app)
+    app.register_blueprint(api, url_prefix="/api/v1")
+    create_indexes(app.extensions["mongo_db"])
 
-    base_dir = os.path.abspath(os.path.dirname(__file__))
+    @app.errorhandler(404)
+    def not_found(_error):
+        return jsonify(error="Not found"), 404
 
-    db_path = os.path.join(base_dir, 'instance', 'mi_base.db')
-
-    os.makedirs(os.path.dirname(db_path), exist_ok=True)
-
-    app.config["SQLALCHEMY_DATABASE_URI"] = f'sqlite:///{db_path}'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['JWT_SECRET_KEY'] = 'tu_clave_secreta_super_segura'
-
-
-    db.init_app(app)
-    migrate = Migrate(app, db)
-
-    app.register_blueprint(auth_api)
-    app.register_blueprint(user_api)
-    app.register_blueprint(calisthenic_variations_api)
-    app.register_blueprint(weighted_variations_api)
-    app.register_blueprint(cardio_variations_api)
-    app.register_blueprint(exercises_api)
-    app.register_blueprint(follow_api)
-    app.register_blueprint(cardio_records_api)
-    app.register_blueprint(calisthenic_records_api)
-    app.register_blueprint(weighted_records_api)
-    app.register_blueprint(weighted_challenges_api)
-    app.register_blueprint(calisthenic_challenges_api)
-    app.register_blueprint(cardio_challenges_api)
-    app.register_blueprint(user_challenges_api)
-
-    # from .db.models import user_models, calisthenic_models, cardio_models, weighted_models, challenge_models, user_follows_models
-    # from .db.routes import auth_routes, calisthenic_variations_routes, exercises_routes, user_routes, weighted_variations_routes
-
-    jwt.init_app(app)       
-    @app.route('/')
-    def sitemap():
-        return '<h1>Hola</h1>'
-
-    with app.app_context():
-        db.create_all()
-
-    
     return app
 
-if __name__ == '__main__':
-    app = create_app()
-    app.run(debug=True)
+
+if __name__ == "__main__":
+    create_app().run()

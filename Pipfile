@@ -5,15 +5,12 @@ name = "pypi"
 
 [packages]
 flask = "*"
-graphviz = "*"
-utils = "*"
-cors = "*"
-flask-cors = "*"
-flask-sqlalchemy = "*"
-flask-migrate = "*"
+pymongo = "*"
 flask-jwt-extended = "*"
 
 [dev-packages]
+pytest = "*"
+mongomock = "*"
 
 [requires]
 python_version = "3.12"
@@ -21,4 +18,3 @@ python_version = "3.12"
 [scripts]
 start = "python -m src.app"
 env = "$env:FLASK_APP = 'manage.py'"
-reset_db = "powershell -ExecutionPolicy Bypass -File ./docs/assets/reset_migrations.ps1"

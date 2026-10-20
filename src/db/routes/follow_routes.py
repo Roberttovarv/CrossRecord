@@ -1,86 +1,41 @@
-from flask import Blueprint, request, jsonify
-from src.db.models.user_models import Users
-from src.db.models.user_follows_models import Follow
-from flask_cors import CORS
-from src.extensions import db, validate_existence, validate_user_access
+from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required
+from pymongo import ASCENDING
 
-follow_api = Blueprint('follow_api', __name__)
+from ..common import APIError, pagination
+from ..connection import db, now
+from ..services.users import actor, friends, get_user, public_user
 
-CORS(follow_api)
+follow_api = Blueprint("follow_api", __name__)
 
-@follow_api.route('/users/<int:user_id>/following', methods=["GET"])
-def get_user_following(user_id):
-    user = db.session.get(Users, user_id)
-    validate_existence(user, "user")
-    following = [follow.serialize() for follow in Follow.query.filter_by(user_id=user_id).all()]
 
-    return jsonify(following), 200
-
-@follow_api.route('/users/<int:user_id>/followers', methods=["GET"])
-def get_user_followers(user_id):
-    user = db.session.get(Users, user_id)
-    validate_existence(user, "user")
-    followers = [follower.serialize() for follower in Follow.query.filter_by(following_id=user_id).all()]
-
-    return jsonify(followers), 200
-
-@follow_api.route('/users/<int:user_id>/following', methods=["POST"])
+@follow_api.post("/users/<user_id>/follow")
 @jwt_required()
-def add_new_follow(user_id):
-    validate_user_access(user_id)
+def follow(user_id):
+    user, target = actor(), get_user(user_id)
+    if user["_id"] == target["_id"]:
+        raise APIError("Cannot follow yourself")
+    db().follows.insert_one({"follower_id": user["_id"], "followed_id": target["_id"], "created_at": now()})
+    return jsonify(following=True, are_friends=friends(user["_id"], target["_id"])), 201
 
-    data = request.json
-    validate_existence(data.get("user_to_follow"), "user_to_follow")
-    user_to_follow = data["user_to_follow"]
- 
-    user = db.session.get(Users, user_id)
-    validate_existence(user, "user")
-    new_follow = db.session.get(Users, user_to_follow)
-    validate_existence(new_follow, "new_follow")
-    
-    existing_follow = Follow.query.filter_by(user_id=user_id, following_id=user_to_follow).first()
-    if existing_follow:
-        return jsonify({'message':'Already following'}), 400
-    if user_id == user_to_follow:
-        return jsonify({'error': 'User ID is same than User to Follow'}), 400
-    
-    follow = Follow(
-        user_id=user_id,
-        following_id=user_to_follow
-    )
 
-    db.session.add(follow)
-    db.session.commit()
-
-    return jsonify(follow.serialize()), 201
-
-@follow_api.route('/users/<int:user_id>/following/<int:following_id>', methods=["DELETE"])
+@follow_api.delete("/users/<user_id>/follow")
 @jwt_required()
-def remove_follow(user_id, following_id):
-    validate_user_access(user_id)
-    
-    follow = Follow.query.filter_by(user_id=user_id, following_id=following_id).first()
+def unfollow(user_id):
+    user, target = actor(), get_user(user_id)
+    db().follows.delete_one({"follower_id": user["_id"], "followed_id": target["_id"]})
+    return jsonify(following=False)
 
-    if follow:
-        db.session.delete(follow),
-        db.session.commit()
 
-        return jsonify({'message':'Follow deleted'}), 200
-
-    return jsonify({'Error':'Follow not found'}), 404
-
-@follow_api.route('/users/<int:user_id>/followers/<int:follower_id>', methods=["DELETE"])
+@follow_api.get("/me/<direction>")
 @jwt_required()
-def remove_follower(user_id, follower_id):
-    validate_user_access(user_id)
-
-    follow = Follow.query.filter_by(user_id=follower_id, following_id=user_id).first()
-
-    if follow:
-        db.session.delete(follow)
-        db.session.commit()
-
-        return jsonify({'message':'Follower deleted'})
-    
-    return jsonify({'error':'Follower not found'}), 404 
+def relationships(direction):
+    user = actor()
+    if direction not in ("following", "followers", "friends"):
+        raise APIError("Not found", 404)
+    limit, offset = pagination()
+    field, other = ("followed_id", "follower_id") if direction == "followers" else ("follower_id", "followed_id")
+    ids = [x[other] for x in db().follows.find({field: user["_id"]})]
+    if direction == "friends":
+        ids = [i for i in ids if friends(user["_id"], i)]
+    return jsonify(items=[public_user(u) for u in db().users.find({"_id": {"$in": ids}}).sort("username_key", ASCENDING).skip(offset).limit(limit)])

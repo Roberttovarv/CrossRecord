@@ -1,149 +1,36 @@
-from flask import Blueprint, request, jsonify
-from src.db.models.calisthenic_models import CalisthenicExercises 
-from src.db.models.weighted_models import WeightedExercise 
-from src.db.models.cardio_models import CardioExercise 
-from flask_cors import CORS
-from src.extensions import db, validate_existence, validate_is_not_blank, validate_length 
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required
+from pymongo import ASCENDING
+
+from ..common import APIError, body, out, pagination, text_field
+from ..connection import db, now
+from ..services.users import actor, admin
+
+KINDS = ("calisthenic", "weighted", "cardio")
+
+exercises_api = Blueprint("exercises_api", __name__)
 
 
-exercises_api = Blueprint('exercises_api', __name__)
+@exercises_api.get("/exercises")
+@jwt_required()
+def exercises():
+    actor()
+    query = {}
+    if request.args.get("kind"):
+        if request.args["kind"] not in KINDS:
+            raise APIError("Invalid kind")
+        query["kind"] = request.args["kind"]
+    limit, offset = pagination()
+    return jsonify(items=out(list(db().exercises.find(query).sort("name", ASCENDING).skip(offset).limit(limit))))
 
-CORS(exercises_api)
 
-@exercises_api.route('/exercises', methods=["GET"])
-def get_all_exercises():
-
-    weighted_exercises = WeightedExercise.query.all()
-    calisthenic_exercises = CalisthenicExercises.query.all()
-    cardio_exercises = CardioExercise.query.all()
-    validate_existence(weighted_exercises, "weighted_exercises")
-    validate_existence(calisthenic_exercises, "calisthenic_exercises")
-    validate_existence(cardio_exercises, "cardio_exercises")
-
-    exercises = {
-        'weighted': [exercise.serialize() for exercise in weighted_exercises],
-        'calisthenic': [exercise.serialize() for exercise in calisthenic_exercises],
-        'cardio': [exercise.serialize() for exercise in cardio_exercises]
-    }
-
-    return jsonify(exercises)
-
-@exercises_api.route('/exercises/weighted', methods=["GET"])
-def get_all_weighted_exercises():
-    exercise = WeightedExercise.query.all()
-    validate_existence(exercise, "exercise")
-
-    exercises = [single_exercise.serialize() for single_exercise in exercise]
-
-    return jsonify(exercises), 200
-
-@exercises_api.route('/exercises/weighted', methods=["POST"])
-def add_weighted_exercise():
-
-    data = request.json
-    validate_existence(data.get("exercise_name"))
-    validate_length(data["exercise_name"])
-    validate_is_not_blank(data["exercise_name"])
-
-    new_exercise = WeightedExercise(exercise_name=data["exercise_name"])
-
-    db.session.add(new_exercise)
-    db.session.commit()
-    return jsonify(new_exercise.serialize()), 201
-
-@exercises_api.route('/exercises/weighted/<int:exercise_id>', methods=["GET"])
-def get_weighted_exercise(exercise_id):
-    exercise = db.session.get(WeightedExercise, exercise_id)
-    validate_existence(exercise, "exercise")
-
-    return jsonify(exercise.serialize()), 200
-
-@exercises_api.route('/exercises/weighted/<int:exercise_id>', methods=["DELETE"])
-def delete_weighted_exercise(exercise_id):
-    exercise_to_delete = db.session.get(WeightedExercise, exercise_id)
-    validate_existence(exercise_to_delete, "exercise_to_delete")
-
-    db.session.delete(exercise_to_delete)
-    db.session.commit()
-
-    return jsonify('message: exercise deleted successfully')
-
-@exercises_api.route('/exercises/calisthenic', methods=["GET"])
-def get_all_calisthenic_exercises():
-    exercise = CalisthenicExercises.query.all()
-    validate_existence(exercise, "exercise")
-
-    exercises = [single_exercise.serialize() for single_exercise in exercise]
-
-    return jsonify(exercises), 200
-
-@exercises_api.route('/exercises/calisthenic', methods=["POST"])
-def add_calisthenic_exercise():
-
-    data = request.json
-    validate_existence(data.get("exercise_name"))
-    validate_length(data["exercise_name"])
-    validate_is_not_blank(data["exercise_name"])
-
-    new_exercise = CalisthenicExercises(exercise_name=data["exercise_name"])
-
-    db.session.add(new_exercise)
-    db.session.commit()
-    return jsonify(new_exercise.serialize()), 201
-
-@exercises_api.route('/exercises/calisthenic/<int:exercise_id>', methods=["GET"])
-def get_calisthenic_exercise(exercise_id):
-    exercise = db.session.get(CalisthenicExercises, exercise_id)
-    validate_existence(exercise, "exercise")
-
-    return jsonify(exercise.serialize()), 200
-
-@exercises_api.route('/exercises/calisthenic/<int:exercise_id>', methods=["DELETE"])
-def delete_calisthenic_exercise(exercise_id):
-    exercise_to_delete = db.session.get(CalisthenicExercises, exercise_id)
-    validate_existence(exercise_to_delete, "exercise_to_delete")
-
-    db.session.delete(exercise_to_delete)
-    db.session.commit()
-
-    return jsonify('message: exercise deleted successfully')
-
-@exercises_api.route('/exercises/cardio', methods=["GET"])
-def get_all_cardio_exercises():
-    exercise = CardioExercise.query.all()
-    validate_existence(exercise, "exercise")
-
-    exercises = [single_exercise.serialize() for single_exercise in exercise]
-
-    return jsonify(exercises), 200
-
-@exercises_api.route('/exercises/cardio', methods=["POST"])
-def add_cardio_exercise():
-
-    data = request.json
-    validate_existence(data.get("exercise_name"))
-    validate_length(data["exercise_name"])
-    validate_is_not_blank(data["exercise_name"])
-
-    new_exercise = CardioExercise(exercise_name=data["exercise_name"])
-
-    db.session.add(new_exercise)
-    db.session.commit()
-    return jsonify(new_exercise.serialize()), 201
-
-@exercises_api.route('/exercises/cardio/<int:exercise_id>', methods=["GET"])
-def get_cardio_exercise(exercise_id):
-    exercise = db.session.get(CardioExercise, exercise_id)
-    validate_existence(exercise, "exercise")
-
-    return jsonify(exercise.serialize()), 200
-
-@exercises_api.route('/exercises/cardio/<int:exercise_id>', methods=["DELETE"])
-def delete_cardio_exercise(exercise_id):
-    exercise_to_delete = db.session.get(CardioExercise, exercise_id)
-    validate_existence(exercise_to_delete, "exercise_to_delete")
-
-    db.session.delete(exercise_to_delete)
-    db.session.commit()
-
-    return jsonify('message: exercise deleted successfully')
+@exercises_api.post("/exercises")
+@admin
+def create_exercise():
+    data = body()
+    kind = data.get("kind")
+    if kind not in KINDS:
+        raise APIError("Invalid kind")
+    doc = {"name": text_field(data, "name"), "kind": kind, "created_at": now()}
+    doc["_id"] = db().exercises.insert_one(doc).inserted_id
+    return jsonify(out(doc)), 201
