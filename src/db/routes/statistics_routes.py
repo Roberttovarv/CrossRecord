@@ -19,4 +19,8 @@ def statistics():
     variation = variation_for(request.args.get("variation_id"))
     distance = number(request.args.get("distance_m"), "distance_m") if variation["kind"] == "cardio" else None
     records = list(db().records.find({"user_id": user["_id"], "variation_id": variation["_id"], "distance_m": distance}).sort([("performed_at", ASCENDING), ("_id", ASCENDING)]))
-    return jsonify(variation_id=str(variation["_id"]), distance_m=distance, count=len(records), best=public_record(best(user["_id"], variation, distance)) if records else None, series=[{"date": out(r["performed_at"]), "value": r["value"]} for r in records])
+    first = records[0]["value"] if records else None
+    last = records[-1]["value"] if records else None
+    change = (first - last if variation["kind"] == "cardio" else last - first) if records else None
+    percentage = change / first * 100 if records else None
+    return jsonify(variation_id=str(variation["_id"]), distance_m=distance, count=len(records), best=public_record(best(user["_id"], variation, distance)) if records else None, first=first, last=last, change=change, change_percentage=percentage, series=[{"date": out(r["performed_at"]), "value": r["value"]} for r in records])

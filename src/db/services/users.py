@@ -1,21 +1,24 @@
 from functools import wraps
 
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask import current_app
+from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
 from ..common import APIError, oid, out
 from ..connection import db
 
 
-def actor():
+def actor(allow_unverified=False):
     user = db().users.find_one({"_id": oid(get_jwt_identity())})
-    if not user:
+    if not user or user.get("deactivated_at") or get_jwt().get("session_version", 0) != user.get("session_version", 0):
         raise APIError("User not found", 401)
+    if current_app.config.get("REQUIRE_EMAIL_VERIFICATION") and not user.get("email_verified") and not allow_unverified:
+        raise APIError("Email verification required", 403)
     return user
 
 
 def get_user(user_id):
     user = db().users.find_one({"_id": oid(user_id)})
-    if not user:
+    if not user or user.get("deactivated_at"):
         raise APIError("User not found", 404)
     return user
 
@@ -45,7 +48,7 @@ def public_user(user):
 
 
 def private_user(user):
-    return {**public_user(user), "email": user["email"], "last_name": user["last_name"], "weight": user.get("weight"), "premium": user.get("premium", False), "show_ads": not user.get("premium", False), "is_admin": user.get("is_admin", False)}
+    return {**public_user(user), "email": user["email"], "email_verified": user.get("email_verified", False), "last_name": user["last_name"], "weight": user.get("weight"), "premium": user.get("premium", False), "show_ads": not user.get("premium", False), "is_admin": user.get("is_admin", False)}
 
 
 def public_record(record):

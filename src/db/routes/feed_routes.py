@@ -20,15 +20,21 @@ def feed(feed_type):
     if feed_type == "following":
         ids = [f["followed_id"] for f in db().follows.find({"follower_id": user["_id"]})]
         query["user_id"] = {"$in": ids + [user["_id"]]}
-    # Free accounts must not recover their older records via the feed.
-    own_allowed = None
-    if not user.get("premium"):
-        own_allowed = {r["_id"] for r in db().records.find({"user_id": user["_id"]}, {"_id": 1}).sort([("performed_at", DESCENDING), ("_id", DESCENDING)]).limit(3)}
-    candidates = []
+    # The free limit applies to published bests per variation/distance, not to
+    # the three latest training records across all exercises.
+    own_allowed = {}
+    items = []
+    matched = 0
     for record in db().records.find(query).sort([("created_at", DESCENDING), ("_id", DESCENDING)]):
         owner = db().users.find_one({"_id": record["user_id"]})
-        if not owner or (record["user_id"] == user["_id"] and own_allowed is not None and record["_id"] not in own_allowed):
+        if not owner or owner.get("deactivated_at"):
             continue
+        if record["user_id"] == user["_id"] and not user.get("premium"):
+            group = (record["variation_id"], record.get("distance_m"))
+            if group not in own_allowed:
+                own_allowed[group] = {r["_id"] for r in db().records.find({"user_id": user["_id"], "variation_id": group[0], "distance_m": group[1], "is_best": True, "is_private": False}, {"_id": 1}).sort([("created_at", DESCENDING), ("_id", DESCENDING)]).limit(3)}
+            if record["_id"] not in own_allowed[group]:
+                continue
         if feed_type == "global" and owner["profile_private"]:
             continue
         if not visible(record, owner, user["_id"]):
@@ -39,17 +45,9 @@ def feed(feed_type):
             challenger = db().users.find_one({"_id": challenge["challenger_id"]}) if challenge else None
             if challenger and (not challenger["profile_private"] or challenger["_id"] == user["_id"] or friends(challenger["_id"], user["_id"])):
                 item["challenger"] = public_user(challenger)
-        candidates.append(item)
-    if feed_type == "global":
-        # Diversify within recent batches while keeping the result deterministic.
-        ordered = []
-        for start in range(0, len(candidates), 50):
-            remaining = candidates[start:start + 50]
-            previous_user = previous_exercise = None
-            while remaining:
-                index = next((i for i, item in enumerate(remaining) if item["user"]["id"] != previous_user and item["record"]["exercise_id"] != previous_exercise), 0)
-                item = remaining.pop(index)
-                ordered.append(item)
-                previous_user, previous_exercise = item["user"]["id"], item["record"]["exercise_id"]
-        candidates = ordered
-    return jsonify(items=candidates[offset:offset + limit], next_offset=offset + limit if len(candidates) > offset + limit else None)
+        if matched >= offset:
+            items.append(item)
+            if len(items) > limit:
+                break
+        matched += 1
+    return jsonify(items=items[:limit], next_offset=offset + limit if len(items) > limit else None)

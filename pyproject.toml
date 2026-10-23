@@ -1,0 +1,12 @@
+[project]
+name = "crossrecord"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "Flask>=3.0,<4",
+    "Flask-JWT-Extended>=4.0,<5",
+    "PyMongo>=4.0,<5",
+]
+
+[tool.vercel]
+entrypoint = "manage:app"

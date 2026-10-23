@@ -38,4 +38,4 @@ def relationships(direction):
     ids = [x[other] for x in db().follows.find({field: user["_id"]})]
     if direction == "friends":
         ids = [i for i in ids if friends(user["_id"], i)]
-    return jsonify(items=[public_user(u) for u in db().users.find({"_id": {"$in": ids}}).sort("username_key", ASCENDING).skip(offset).limit(limit)])
+    return jsonify(items=[public_user(u) for u in db().users.find({"_id": {"$in": ids}, "deactivated_at": None}).sort("username_key", ASCENDING).skip(offset).limit(limit)])
