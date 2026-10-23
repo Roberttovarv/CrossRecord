@@ -39,15 +39,10 @@ $env:CROSSRECORD_LOCAL_ROBERT_PASSWORD = '<choose a local password>'
 
 ```powershell
 pipenv install --dev
-$env:MONGO_URI = 'mongodb://127.0.0.1:27017/?replicaSet=rs0'
-$env:MONGO_DATABASE = 'crossrecord_local'
-$env:JWT_SECRET_KEY = '<a long random secret>'
-$env:RESEND_API_KEY = '<store this only as a Vercel Secret>'
-$env:RESEND_REGION = 'eu-west-1'
-$env:MAIL_FROM = 'CrossRecord <noreply@daniellaamb.com>'
-$env:FRONTEND_URL = 'https://your-mobile-web-url.example'
 pipenv run python run_server.py
 ```
+
+`run_server.py` loads the ignored `.env.local` file automatically. It is already configured for the local MongoDB URI and `crossrecord_local`; do not point it at Atlas. To test real email locally, add a separate development Resend key and a verified sender to that file. Vercel uses its own environment variables and never reads `.env.local`.
 
 Use a managed replica set and credentials in production. Configure `JWT_SECRET_KEY` through a secret manager; the application refuses to start without it. Indexes are created at startup. The application does not create initial administrators or premium accounts from client input: provision `is_admin` and `premium` through a trusted database administration process. Payment verification and advertising SDKs are not included. Existing accounts default to free and non-admin.
 

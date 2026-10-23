@@ -1,11 +1,18 @@
 import os
+from pathlib import Path
 
+from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
 from pymongo import MongoClient
 
 from .api import api
 from .db.connection import create_indexes
+
+
+# Local development configuration only. Hosted environments provide their own
+# variables and therefore take precedence over this ignored file.
+load_dotenv(Path(__file__).resolve().parents[1] / ".env.local", override=False)
 
 
 def create_app(config=None):
