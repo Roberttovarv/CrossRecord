@@ -149,7 +149,8 @@ def main():
     uri = os.environ.get("MONGO_URI")
     if not uri:
         sys.exit("MONGO_URI is required")
-    client = MongoClient(uri, tz_aware=True)
+    client = MongoClient(uri, tz_aware=True, serverSelectionTimeoutMS=15000)
+    client.admin.command("ping")
     database = client[os.environ.get("MONGO_DATABASE", "crossrecord")]
     create_indexes(database)
     print(seed(database, args.dry_run))
