@@ -66,7 +66,14 @@ Guardar el token de forma segura. El login reactiva una cuenta desactivada. Desa
 | Solicitar contraseña | `POST /auth/password-reset/request` | `{ "email" }` | Siempre `202 { "sent": true }` |
 | Nueva contraseña | `POST /auth/password-reset/confirm` | `{ "token", "password" }` | `{ "reset": true }` |
 
-Los enlaces de correo son `/verify-email?token=...` y `/reset-password?token=...`; duran una hora y se usan una vez. Un usuario no verificado puede login y `GET /me`, pero el resto de la app devuelve `403 Email verification required`: mostrar pantalla/banner de verificación.
+Los enlaces de correo móvil usan `crossrecord://verify-email?token=...` y `crossrecord://reset-password?token=...`; duran una hora y se usan una vez. El backend conserva compatibilidad con una URL HTTPS si `FRONTEND_URL` se configura con ella. Un usuario no verificado puede login y `GET /me`, pero el resto de la app devuelve `403 Email verification required`: mostrar pantalla/banner de verificación.
+
+### Integración Expo y desarrollo local
+
+- Expo debe declarar `"scheme": "crossrecord"` en `app.json` y procesar enlaces entrantes con `Linking.getInitialURL()` y `Linking.addEventListener("url", ...)`.
+- Para `verify-email`, extraer `token` y llamar `POST /auth/verify-email/confirm`; para `reset-password`, mostrar el formulario de nueva contraseña y llamar `POST /auth/password-reset/confirm` con `token` y `password`.
+- Producción usa `https://cross-record.vercel.app/api/v1`. Para backend local en un teléfono real, usar `http://<IP-LAN-DEL-PC>:5000/api/v1`; Android Emulator usa `http://10.0.2.2:5000/api/v1` y iOS Simulator puede usar `http://127.0.0.1:5000/api/v1`.
+- MongoDB Compass debe conectarse a `mongodb://127.0.0.1:27017/?replicaSet=rs0` y seleccionar `crossrecord_local`. La app móvil nunca se conecta directamente a MongoDB.
 
 ### Perfil y cuenta
 

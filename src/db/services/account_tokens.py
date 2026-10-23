@@ -31,6 +31,10 @@ def consume(token, purpose):
 def send_link(user, purpose):
     token = issue(user, purpose)
     path = "verify-email" if purpose == "verify_email" else "reset-password"
-    link = current_app.config["FRONTEND_URL"].rstrip("/") + "/" + path + "?" + urlencode({"token": token})
+    frontend_url = current_app.config["FRONTEND_URL"]
+    # A mobile URI scheme ends in :// and must keep both slashes. HTTP(S)
+    # URLs continue to use a normal path separator.
+    base = frontend_url if frontend_url.endswith("://") else frontend_url.rstrip("/") + "/"
+    link = base + path + "?" + urlencode({"token": token})
     title = "Verifica tu correo" if purpose == "verify_email" else "Restablece tu contraseña"
     send(user["email"], title + " · CrossRecord", "<p>" + title + "</p><p><a href=\"" + escape(link, quote=True) + "\">Continuar</a></p><p>El enlace caduca en una hora.</p>")

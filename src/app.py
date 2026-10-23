@@ -24,7 +24,7 @@ def create_app(config=None):
         RESEND_API_KEY=os.environ.get("RESEND_API_KEY"),
         RESEND_REGION=os.environ.get("RESEND_REGION", "eu-west-1"),
         MAIL_FROM=os.environ.get("MAIL_FROM"),
-        FRONTEND_URL=os.environ.get("FRONTEND_URL", "http://localhost:3000"),
+        FRONTEND_URL=os.environ.get("FRONTEND_URL", "crossrecord://"),
         REQUIRE_EMAIL_VERIFICATION=True,
     )
     if config:
