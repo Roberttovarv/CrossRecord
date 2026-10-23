@@ -8,6 +8,8 @@ def variation_for(variation_id):
     variation = db().variations.find_one({"_id": oid(variation_id)})
     if not variation:
         raise APIError("Variation not found", 404)
+    if not variation.get("record_enabled", True):
+        raise APIError("This variation is visible in the catalog but does not support records yet", 400)
     return variation
 
 
