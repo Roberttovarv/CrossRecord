@@ -18,7 +18,7 @@ function Get-MongodPath {
     }
     $command = Get-Command mongod -ErrorAction SilentlyContinue
     if ($command) { return $command.Source }
-    $installed = Get-ChildItem -Path (Join-Path $env:ProgramFiles 'MongoDB\Server\*\bin\mongod.exe') -ErrorAction SilentlyContinue |
+    $installed = Get-ChildItem -Path (Join-Path $env:ProgramFiles 'MongoDB\Server') -Recurse -Filter 'mongod.exe' -File -ErrorAction SilentlyContinue |
         Sort-Object FullName -Descending | Select-Object -First 1
     if ($installed) { return $installed.FullName }
     throw "MongoDB Server is not installed or not on PATH. Install MongoDB Community Server, then reopen PowerShell. You can also set MONGOD_PATH to mongod.exe."
@@ -27,7 +27,10 @@ function Get-MongodPath {
 function Get-MongoshPath {
     $command = Get-Command mongosh -ErrorAction SilentlyContinue
     if ($command) { return $command.Source }
-    $installed = Get-ChildItem -Path (Join-Path $env:ProgramFiles 'MongoDB\mongosh\*\bin\mongosh.exe') -ErrorAction SilentlyContinue |
+    $installed = @(
+        Get-ChildItem -Path (Join-Path $env:LOCALAPPDATA 'Programs\mongosh') -Recurse -Filter 'mongosh.exe' -File -ErrorAction SilentlyContinue
+        Get-ChildItem -Path (Join-Path $env:ProgramFiles 'MongoDB\mongosh') -Recurse -Filter 'mongosh.exe' -File -ErrorAction SilentlyContinue
+    ) |
         Sort-Object FullName -Descending | Select-Object -First 1
     if ($installed) { return $installed.FullName }
     throw "MongoDB Shell (mongosh) is required to initialise the local replica set. Install it, then reopen PowerShell."
