@@ -13,12 +13,34 @@ The three exercise categories use the same record and challenge endpoints, with 
 
 ## Run locally
 
-Install Python 3.12, Pipenv, MongoDB and `mongosh`. MongoDB must run as a replica set, even locally: completing a challenge uses a multi-document transaction. For example, start `mongod` with `--replSet rs0` and an existing data directory, then run `rs.initiate()` in `mongosh`. Wait for the primary to become available.
+Install Python 3.12, Pipenv, MongoDB Community Server and `mongosh`. MongoDB must run as a replica set, even locally: completing a challenge uses a multi-document transaction.
+
+### Local database and seed data
+
+The repository includes Windows/PowerShell commands for a separate local database. It listens only on `127.0.0.1`, uses the replica set `rs0`, and stores its files in `%LOCALAPPDATA%\CrossRecord\mongodb`; it never uses or changes Atlas.
+
+Install GNU Make if you want to use `make` targets. Then:
+
+```powershell
+make mongo-up
+make mongo-status
+make seed-catalog
+$env:CROSSRECORD_LOCAL_ROBERT_PASSWORD = '<choose a local password>'
+make seed
+```
+
+`make seed` creates/promotes the local `robert` premium account and adds the CrossFit catalog plus the repeatable demo dataset. It uses the database `crossrecord_local` and is safe to run again. `make mongo-down` stops only the MongoDB process started by this repository. Without GNU Make, invoke the same PowerShell scripts directly:
+
+```powershell
+.\scripts\local_mongo.ps1 -Action up
+$env:CROSSRECORD_LOCAL_ROBERT_PASSWORD = '<choose a local password>'
+.\scripts\seed_local.ps1 -Action all
+```
 
 ```powershell
 pipenv install --dev
-$env:MONGO_URI = 'mongodb://localhost:27017/?replicaSet=rs0'
-$env:MONGO_DATABASE = 'crossrecord'
+$env:MONGO_URI = 'mongodb://127.0.0.1:27017/?replicaSet=rs0'
+$env:MONGO_DATABASE = 'crossrecord_local'
 $env:JWT_SECRET_KEY = '<a long random secret>'
 $env:RESEND_API_KEY = '<store this only as a Vercel Secret>'
 $env:RESEND_REGION = 'eu-west-1'
