@@ -5,7 +5,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$port = 27017
+$port = 27018
 $replicaSet = 'rs0'
 $storageRoot = Join-Path $env:LOCALAPPDATA 'CrossRecord\mongodb'
 $dataPath = Join-Path $storageRoot 'data'
@@ -18,12 +18,18 @@ function Get-MongodPath {
     }
     $command = Get-Command mongod -ErrorAction SilentlyContinue
     if ($command) { return $command.Source }
+    $installed = Get-ChildItem -Path (Join-Path $env:ProgramFiles 'MongoDB\Server\*\bin\mongod.exe') -ErrorAction SilentlyContinue |
+        Sort-Object FullName -Descending | Select-Object -First 1
+    if ($installed) { return $installed.FullName }
     throw "MongoDB Server is not installed or not on PATH. Install MongoDB Community Server, then reopen PowerShell. You can also set MONGOD_PATH to mongod.exe."
 }
 
 function Get-MongoshPath {
     $command = Get-Command mongosh -ErrorAction SilentlyContinue
     if ($command) { return $command.Source }
+    $installed = Get-ChildItem -Path (Join-Path $env:ProgramFiles 'MongoDB\mongosh\*\bin\mongosh.exe') -ErrorAction SilentlyContinue |
+        Sort-Object FullName -Descending | Select-Object -First 1
+    if ($installed) { return $installed.FullName }
     throw "MongoDB Shell (mongosh) is required to initialise the local replica set. Install it, then reopen PowerShell."
 }
 
@@ -32,6 +38,8 @@ function Test-MongoPort {
 }
 
 function Start-LocalMongo {
+    # Validate both executables before spawning a background server.
+    $mongosh = Get-MongoshPath
     if (Test-MongoPort) {
         Write-Host "MongoDB is already listening on 127.0.0.1:$port."
     } else {
@@ -56,7 +64,6 @@ function Start-LocalMongo {
         Write-Host "MongoDB started (PID $($process.Id))."
     }
 
-    $mongosh = Get-MongoshPath
     $initialise = "try { rs.status().ok } catch (error) { rs.initiate({_id:'$replicaSet',members:[{_id:0,host:'127.0.0.1:$port'}]}) }"
     & $mongosh --quiet --host 127.0.0.1 --port $port --eval $initialise | Out-Null
     for ($attempt = 0; $attempt -lt 20; $attempt++) {

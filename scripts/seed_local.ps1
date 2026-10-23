@@ -5,7 +5,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$env:MONGO_URI = 'mongodb://127.0.0.1:27017/?replicaSet=rs0'
+$env:MONGO_URI = 'mongodb://127.0.0.1:27018/?replicaSet=rs0'
 $env:MONGO_DATABASE = 'crossrecord_local'
 
 function Invoke-PythonScript([string]$script, [string[]]$arguments = @()) {

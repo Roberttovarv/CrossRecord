@@ -73,7 +73,7 @@ Los enlaces de correo móvil usan `crossrecord://verify-email?token=...` y `cros
 - Expo debe declarar `"scheme": "crossrecord"` en `app.json` y procesar enlaces entrantes con `Linking.getInitialURL()` y `Linking.addEventListener("url", ...)`.
 - Para `verify-email`, extraer `token` y llamar `POST /auth/verify-email/confirm`; para `reset-password`, mostrar el formulario de nueva contraseña y llamar `POST /auth/password-reset/confirm` con `token` y `password`.
 - Producción usa `https://cross-record.vercel.app/api/v1`. Para backend local en un teléfono real, usar `http://<IP-LAN-DEL-PC>:5000/api/v1`; Android Emulator usa `http://10.0.2.2:5000/api/v1` y iOS Simulator puede usar `http://127.0.0.1:5000/api/v1`.
-- MongoDB Compass debe conectarse a `mongodb://127.0.0.1:27017/?replicaSet=rs0` y seleccionar `crossrecord_local`. La app móvil nunca se conecta directamente a MongoDB.
+- MongoDB Compass debe conectarse a `mongodb://127.0.0.1:27018/?replicaSet=rs0` y seleccionar `crossrecord_local`. El puerto 27018 es exclusivo de CrossRecord y evita modificar cualquier servicio MongoDB normal en 27017. La app móvil nunca se conecta directamente a MongoDB.
 
 ### Perfil y cuenta
 

@@ -23,4 +23,4 @@ seed:
 	powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seed_local.ps1 -Action all
 
 test-integration:
-	powershell -NoProfile -ExecutionPolicy Bypass -Command "$$env:TEST_MONGO_URI='mongodb://127.0.0.1:27017/?replicaSet=rs0'; pipenv run python -m pytest"
+	powershell -NoProfile -ExecutionPolicy Bypass -Command "$$env:TEST_MONGO_URI='mongodb://127.0.0.1:27018/?replicaSet=rs0'; pipenv run python -m pytest"
