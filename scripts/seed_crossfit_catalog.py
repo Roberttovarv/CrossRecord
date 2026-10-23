@@ -6,8 +6,13 @@ documents or athlete records; repeat runs update only this catalog's metadata.
 import argparse
 import os
 import sys
+from pathlib import Path
 
 from pymongo import MongoClient
+
+# Running a script by path puts `scripts/` first in sys.path. Add the repository
+# root explicitly so this tool works with Pipenv and Vercel env run alike.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.db.connection import create_indexes, now
 
